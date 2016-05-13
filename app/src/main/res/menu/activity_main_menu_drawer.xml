@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_NewGame"
+            android:icon="@drawable/ic_new_24dp"
+            android:title="New Game" />
+        <item
+            android:id="@+id/nav_FindGame"
+            android:icon="@drawable/ic_find_24dp"
+            android:title="Find Game" />
+        <item
+            android:id="@+id/nav_Friends"
+            android:icon="@drawable/ic_friends_24dp"
+            android:title="Friends" />
+        <item
+            android:id="@+id/nav_GameOptions"
+            android:icon="@drawable/ic_brush_24dp"
+            android:title="Options" />
+    </group>
+
+    <item android:title="Account">
+        <menu>
+            <item
+                android:id="@+id/nav_Share"
+                android:icon="@drawable/ic_share_24dp"
+                android:title="Share" />
+            <item
+                android:id="@+id/nav_Settings"
+                android:icon="@drawable/ic_settings_24dp"
+                android:title="Settings" />
+            <item
+                android:id="@+id/nav_Logout"
+                android:icon="@drawable/ic_settings_power_24dp"
+                android:title="Logout" />
+        </menu>
+    </item>
+
+</menu>
