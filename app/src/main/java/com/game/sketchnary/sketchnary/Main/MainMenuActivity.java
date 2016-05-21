@@ -25,8 +25,8 @@ implements NavigationView.OnNavigationItemSelectedListener,FindGameFragment.OnLi
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_menu);
         //Making login on the game
-      /*  Intent intent = new Intent(this, LoginActivity.class);
-        startActivity(intent);*/
+        Intent intent = new Intent(this, LoginActivity.class);
+        startActivity(intent);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
