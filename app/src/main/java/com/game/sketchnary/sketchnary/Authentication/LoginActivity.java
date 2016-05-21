@@ -159,82 +159,27 @@ public class LoginActivity extends Activity {
 
         client.setConnection(null);*/
 
-        AssetManager assetManager = getAssets();
-        InputStream keyStoreInputStream = null;
         try {
-            keyStoreInputStream = assetManager.open("Keys/truststore.bks");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        KeyStore trustStore = null;
-        try {
-            trustStore = KeyStore.getInstance("BKS");
-        } catch (KeyStoreException e) {
-            e.printStackTrace();
-        }
+            String keyStoreType = KeyStore.getDefaultType();
+            KeyStore keyStore = KeyStore.getInstance(keyStoreType);
+            keyStore.load(getAssets().open("Keys/truststore.bks"), "123456".toCharArray());
 
-        try {
-            trustStore.load(keyStoreInputStream, "123456".toCharArray());
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (CertificateException e) {
-            e.printStackTrace();
-        }
+            // Create a TrustManager that trusts the CAs in our KeyStore
+            String tmfAlgorithm = TrustManagerFactory.getDefaultAlgorithm();
+            TrustManagerFactory tmf = TrustManagerFactory.getInstance(tmfAlgorithm);
+            tmf.init(keyStore);
 
+            SSLContext context = SSLContext.getInstance("TLS");
+            context.init(null, tmf.getTrustManagers(), null);
 
-        String tmfAlgorithm = TrustManagerFactory.getDefaultAlgorithm();
-        TrustManagerFactory tmf = null;
-        try {
-            tmf = TrustManagerFactory.getInstance(tmfAlgorithm);
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        }
-        try {
-            tmf.init(trustStore);
-        } catch (KeyStoreException e) {
-            e.printStackTrace();
-        }
-
-        SSLContext sslContext = null;
-        try {
-            sslContext = SSLContext.getInstance("TLS");
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        }
-        try {
-            sslContext.init(null, tmf.getTrustManagers(), null);
-        } catch (KeyManagementException e) {
-            e.printStackTrace();
-        }
-        URL url = null;
-        try {
-            url = new URL("https://192.168.1.5/api/events/?username=d");
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
-        HttpsURLConnection urlConnection = null;
-        try {
-            urlConnection = (HttpsURLConnection)url.openConnection();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        urlConnection.setSSLSocketFactory(sslContext.getSocketFactory());
-
-        try {
+            URL url = new URL("https://192.168.1.5/api/events/");
+            HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
+            urlConnection.setSSLSocketFactory(context.getSocketFactory());
             InputStream in = urlConnection.getInputStream();
-            BufferedReader reader = new BufferedReader( new InputStreamReader( in )  );
-            String line = null;
-            StringBuilder sb = new StringBuilder();
-            while( ( line = reader.readLine() ) != null )  {
-                sb.append(line);
-            }
-            Log.d(TAG,"RESPOSTA!");
-            String response = sb.toString();
-            Log.d(TAG,response);
-            Log.d(TAG,"FIM-RESPOSTA!");
-        } catch (IOException e) {
+            int n;
+            while ((n = in.read()) != -1) System.out.print((char)n);
+            System.out.println();
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return 2;
