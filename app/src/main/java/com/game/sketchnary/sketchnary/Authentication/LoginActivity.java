@@ -2,11 +2,10 @@ package com.game.sketchnary.sketchnary.Authentication;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.res.AssetManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
-import android.os.StrictMode;
 import android.util.Log;
 
 import android.content.Intent;
@@ -19,20 +18,15 @@ import android.widget.Toast;
 import com.game.sketchnary.sketchnary.R;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.security.KeyManagementException;
 import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
-import java.sql.Connection;
 
+import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManagerFactory;
 
 
@@ -40,8 +34,15 @@ public class LoginActivity extends Activity {
     private static final String TAG = "LoginActivity";
     private static final int REQUEST_SIGNUP = 0;
     private static int LOGIN_STATUS = 0;
-    private ProgressDialog progressDialog;/* = new ProgressDialog(LoginActivity.this,
-            R.style.AppTheme_Dark_Dialog);*/
+    private static String IP_ADRESS = "192.168.1.5";//this may change..
+    private Handler mHandler = new Handler(Looper.getMainLooper()) {
+        @Override
+        public void handleMessage(Message message) {
+            Toast.makeText(getBaseContext(), "Login failed", Toast.LENGTH_LONG).show();
+            _loginButton.setEnabled(true);
+        }
+    };
+
 
 
     EditText _emailText;
@@ -49,22 +50,25 @@ public class LoginActivity extends Activity {
     Button _loginButton;
     TextView _signupLink;
 
-    public LoginActivity() {
-        progressDialog = null;
-    }
 
+    static {
+        HttpsURLConnection.setDefaultHostnameVerifier(new HostnameVerifier()
+        {
+            public boolean verify(String hostname, SSLSession session)
+            {
+                // ip address of the service URL(like.23.28.244.244)
+                if (hostname.equals(IP_ADRESS))
+                    return true;
+                else
+                    return false;
+            }
+        });
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-        StrictMode.setThreadPolicy(policy);
-
-        progressDialog = new ProgressDialog(LoginActivity.this,
-                R.style.AppTheme_Dark_Dialog);
-        progressDialog.setIndeterminate(true);
-        progressDialog.setMessage("Authenticating...");
 
         _emailText = (EditText)findViewById(R.id.input_email);
         _passwordText = (EditText)findViewById(R.id.input_password);
@@ -75,7 +79,6 @@ public class LoginActivity extends Activity {
 
             @Override
             public void onClick(View v) {
-                progressDialog.show();
                 login();
             }
         });
@@ -93,7 +96,13 @@ public class LoginActivity extends Activity {
 
     public void login() {
         Log.d(TAG, "Login");
+
+        final ProgressDialog progressDialog = new ProgressDialog(LoginActivity.this,
+                R.style.AppTheme_Dark_Dialog);
+        progressDialog.setIndeterminate(true);
+        progressDialog.setMessage("Authenticating...");
         progressDialog.show();
+
         if (!validate()) {
             onLoginFailed();
             return;
@@ -107,58 +116,43 @@ public class LoginActivity extends Activity {
         // TODO: Implement your own authentication logic here.
 
 
-        new android.os.Handler().postDelayed(
-                new Thread() {
-                    public void run() {
-                        // On complete call either onLoginSuccess or onLoginFailed
-                        Log.d(TAG,"VAMOS TESTAR!");
-                        Log.d(TAG,"Email: "+email);
-                        Log.d(TAG,"Password: "+password);
-                        LOGIN_STATUS = testLogin(email,password);
-                        switch(LOGIN_STATUS){
-                            case 0:
-                                Log.d(TAG,"NOTHING HAPPENED!");
-                                onLoginFailed();
-                                break;
-                            case 1:
-                                Log.d(TAG,"Invalid Username!");
-                                onLoginFailed();
-                                break;
-                            case 2:
-                                Log.d(TAG,"Invalid Password!");
-                                onLoginFailed();
-                                break;
-                            case 3:
-                                onLoginSuccess();
-                                break;
-                            default:
-                        }
-                        progressDialog.dismiss();
-                    }
-                }, 1000);
+        new Thread() {
+            public void run() {
+                // On complete call either onLoginSuccess or onLoginFailed
+                Log.d(TAG,"VAMOS TESTAR!");
+                Log.d(TAG,"Email: "+email);
+                Log.d(TAG,"Password: "+password);
+                LOGIN_STATUS = testLogin(email,password);
+                Message message;
+                switch(LOGIN_STATUS){
+                    case 0:
+                        Log.d(TAG,"Server error.... Try again later!!");
+                        message = mHandler.obtainMessage();
+                        message.sendToTarget();
+                        break;
+                    case 1:
+                        Log.d(TAG,"Invalid Username!");
+                        message = mHandler.obtainMessage();
+                        message.sendToTarget();
+                        break;
+                    case 2:
+                        Log.d(TAG,"Invalid Password!");
+                        message = mHandler.obtainMessage();
+                        message.sendToTarget();
+                        break;
+                    case 3:
+                        onLoginSuccess();
+                        break;
+                    default:
+                }
+                progressDialog.dismiss();
+            }
+        }.start();
 
     }
 
     protected int testLogin(String email,String password) {
-        /*HttpsConnection client = new HttpsConnection("https://172.30.28.240/api/event/?username=player1&password=pass", "GET");
-        client.setContext();
-
-        AssetManager am = getAssets();
-        try {
-            Log.d(TAG,"TENTAR");
-            InputStream clientKeys = am.open("Keys/client.keys");
-            InputStream trustStone = am.open("Keys/truststore");
-
-                Log.d(TAG,"nãotem: ");
-            Log.d(TAG,"FIM");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        String urlParameters = "?username=player1&password=pass";
-
-        client.setConnection(null);*/
-
+        int res=0;
         try {
             String keyStoreType = KeyStore.getDefaultType();
             KeyStore keyStore = KeyStore.getInstance(keyStoreType);
@@ -172,17 +166,38 @@ public class LoginActivity extends Activity {
             SSLContext context = SSLContext.getInstance("TLS");
             context.init(null, tmf.getTrustManagers(), null);
 
-            URL url = new URL("https://192.168.1.5/api/events/");
+            URL url = new URL("https://"+IP_ADRESS+"/api/event/?username="+email+"&password="+password);
             HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
             urlConnection.setSSLSocketFactory(context.getSocketFactory());
             InputStream in = urlConnection.getInputStream();
-            int n;
-            while ((n = in.read()) != -1) System.out.print((char)n);
-            System.out.println();
+            BufferedReader reader = new BufferedReader( new InputStreamReader(in )  );
+            String line = null;
+            StringBuilder sb = new StringBuilder();
+            while( ( line = reader.readLine() ) != null )  {
+                sb.append(line);
+            }
+            Log.d(TAG,"ESTOU AUI1");
+            String answer =sb.toString();
+            Log.d(TAG,answer);
+            switch(answer){
+                case "Not Found!":
+                    Log.d(TAG,"NOTFOUND-1");
+                    res =1;
+                    break;
+                case "Invalid password!":
+                    Log.d(TAG,"Invalid-1");
+                    res =2;
+                    break;
+                case "GET request successful!":
+                    Log.d(TAG,"SUCCESS-1");
+                    break;
+                default:
+            }
+            Log.d(TAG,"ESTOU AUI2");
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return 2;
+        return res;
     }
 
     @Override
