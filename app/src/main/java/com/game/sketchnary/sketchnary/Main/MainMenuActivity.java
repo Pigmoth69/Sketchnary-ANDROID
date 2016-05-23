@@ -14,7 +14,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.game.sketchnary.sketchnary.Authentication.LoginActivity;
-import com.game.sketchnary.sketchnary.Main.dummy.DummyContent;
+import com.game.sketchnary.sketchnary.Main.dummy.Room;
 import com.game.sketchnary.sketchnary.R;
 
 public class MainMenuActivity extends AppCompatActivity
@@ -101,7 +101,12 @@ implements NavigationView.OnNavigationItemSelectedListener,FindGameFragment.OnLi
 
         if (id == R.id.nav_NewGame) {
             // Handle the camera action
-
+            Fragment fragment = new FindGameFragment(20);
+            // Insert the fragment by replacing any existing fragment
+            FragmentManager fragmentManager = getFragmentManager();
+            fragmentManager.beginTransaction()
+                    .replace(R.id.contentFragment, fragment)
+                    .commit();
         } else if (id == R.id.nav_FindGame) {
 
         } else if (id == R.id.nav_Friends) {
@@ -122,7 +127,7 @@ implements NavigationView.OnNavigationItemSelectedListener,FindGameFragment.OnLi
     }
 
     @Override
-    public void onListFragmentInteraction(DummyContent.DummyItem item) {
+    public void onListFragmentInteraction(Room item) {
 
     }
 }

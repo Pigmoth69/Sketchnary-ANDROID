@@ -1,5 +1,6 @@
 package com.game.sketchnary.sketchnary.Main;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Bundle;
 import android.app.Fragment;
@@ -11,10 +12,10 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.game.sketchnary.sketchnary.R;
-import com.game.sketchnary.sketchnary.Main.dummy.DummyContent;
-import com.game.sketchnary.sketchnary.Main.dummy.DummyContent.DummyItem;
+import com.game.sketchnary.sketchnary.Main.dummy.Room;
 import com.game.sketchnary.sketchnary.Main.MainMenuActivity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -30,12 +31,18 @@ public class FindGameFragment extends Fragment {
     // TODO: Customize parameters
     private int mColumnCount = 1;
     private OnListFragmentInteractionListener mListener;
+    private int roomNum=10;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
      */
     public FindGameFragment() {
+    }
+
+    @SuppressLint("ValidFragment")
+    public FindGameFragment(int i) {
+        roomNum=i;
     }
 
     // TODO: Customize parameter initialization
@@ -71,7 +78,12 @@ public class FindGameFragment extends Fragment {
             } else {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
-            recyclerView.setAdapter(new MyFindGameRecyclerViewAdapter(DummyContent.ITEMS, mListener));
+
+            ArrayList<Room> gameRooms= new ArrayList<Room>();
+            for(int i = 0; i < roomNum; i++){
+                gameRooms.add(new Room(""+i,"cenas",""+i));
+            }
+            recyclerView.setAdapter(new MyFindGameRecyclerViewAdapter(gameRooms, mListener));
         }
         return view;
     }
@@ -106,6 +118,6 @@ public class FindGameFragment extends Fragment {
      */
     public interface OnListFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onListFragmentInteraction(DummyItem item);
+        void onListFragmentInteraction(Room item);
     }
 }

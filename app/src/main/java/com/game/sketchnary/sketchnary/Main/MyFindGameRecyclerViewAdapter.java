@@ -8,22 +8,23 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.game.sketchnary.sketchnary.Main.FindGameFragment.OnListFragmentInteractionListener;
-import com.game.sketchnary.sketchnary.Main.dummy.DummyContent.DummyItem;
+import com.game.sketchnary.sketchnary.Main.dummy.Room;
 import com.game.sketchnary.sketchnary.R;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
- * {@link RecyclerView.Adapter} that can display a {@link DummyItem} and makes a call to the
+ * {@link RecyclerView.Adapter} that can display a {@link Room} and makes a call to the
  * specified {@link OnListFragmentInteractionListener}.
  * TODO: Replace the implementation with code for your data type.
  */
 public class MyFindGameRecyclerViewAdapter extends RecyclerView.Adapter<MyFindGameRecyclerViewAdapter.ViewHolder> {
 
-    private final List<DummyItem> mValues;
+    private final ArrayList<Room> mValues;
     private final OnListFragmentInteractionListener mListener;
 
-    public MyFindGameRecyclerViewAdapter(List<DummyItem> items, OnListFragmentInteractionListener listener) {
+    public MyFindGameRecyclerViewAdapter(ArrayList<Room> items, OnListFragmentInteractionListener listener) {
         mValues = items;
         mListener = listener;
     }
@@ -51,7 +52,7 @@ public class MyFindGameRecyclerViewAdapter extends RecyclerView.Adapter<MyFindGa
                     mListener.onListFragmentInteraction(holder.mItem);
                     String s = new String(holder.mItem.toString());
                     Log.w("myApp", s);
-                    mValues.add(new DummyItem("69","cenas","2"));
+                    mValues.add(new Room("69","cenas","2"));
 
                 }
             }
@@ -68,7 +69,7 @@ public class MyFindGameRecyclerViewAdapter extends RecyclerView.Adapter<MyFindGa
         public final TextView mRoomNumberView;
         public final TextView mCategoryView;
         public final TextView mNumberPlayersView;
-        public DummyItem mItem;
+        public Room mItem;
 
         public ViewHolder(View view) {
             super(view);
