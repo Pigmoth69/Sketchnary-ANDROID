@@ -11,6 +11,7 @@ import java.util.Map;
  * <p/>
  * TODO: Replace all uses of this class before publishing your app.
  */
+
 public class DummyContent {
 
     /**
@@ -24,7 +25,9 @@ public class DummyContent {
     public static final Map<String, DummyItem> ITEM_MAP = new HashMap<String, DummyItem>();
 
     private static final int COUNT = 10;
-
+    public void addDumy(int i){
+        addItem(createDummyItem(i));
+    }
     static {
         // Add some sample items.
         for (int i = 1; i <= COUNT; i++) {
@@ -62,3 +65,5 @@ public class DummyContent {
         }
     }
 }
+
+

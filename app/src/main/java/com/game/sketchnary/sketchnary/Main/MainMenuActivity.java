@@ -25,8 +25,9 @@ implements NavigationView.OnNavigationItemSelectedListener,FindGameFragment.OnLi
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_menu);
         //Making login on the game
-        Intent intent = new Intent(this, LoginActivity.class);
-        startActivity(intent);
+
+        /*Intent intent = new Intent(this, LoginActivity.class);
+        startActivity(intent);*/
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -50,13 +51,6 @@ implements NavigationView.OnNavigationItemSelectedListener,FindGameFragment.OnLi
         navigationView.setNavigationItemSelectedListener(this);
 
         if (savedInstanceState == null){
-            /*Log.v("Er","entrou!!");
-            FindGameFragment findGameFragment = new FindGameFragment();
-            FragmentManager fragmentManager = getFragmentManager();
-            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-            fragmentTransaction.add(R.layout.content_main_menu, findGameFragment);
-            fragmentTransaction.commit();*/
-
             Fragment fragment = new FindGameFragment();
             // Insert the fragment by replacing any existing fragment
             FragmentManager fragmentManager = getFragmentManager();
@@ -107,6 +101,7 @@ implements NavigationView.OnNavigationItemSelectedListener,FindGameFragment.OnLi
 
         if (id == R.id.nav_NewGame) {
             // Handle the camera action
+
         } else if (id == R.id.nav_FindGame) {
 
         } else if (id == R.id.nav_Friends) {

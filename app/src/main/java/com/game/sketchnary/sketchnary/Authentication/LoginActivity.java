@@ -34,12 +34,18 @@ public class LoginActivity extends Activity {
     private static final String TAG = "LoginActivity";
     private static final int REQUEST_SIGNUP = 0;
     private static int LOGIN_STATUS = 0;
-    private static String IP_ADRESS = "192.168.1.5";//this may change..
+    private static String IP_ADRESS = "172.30.24.106";//this may change..
+
     private Handler mHandler = new Handler(Looper.getMainLooper()) {
         @Override
         public void handleMessage(Message message) {
-            Toast.makeText(getBaseContext(), "Login failed", Toast.LENGTH_LONG).show();
-            _loginButton.setEnabled(true);
+            String status = (String)message.obj;
+            if(status.equals("Login successful!"))
+                onLoginSuccess();
+            else {
+                Toast.makeText(getBaseContext(), status, Toast.LENGTH_LONG).show();
+                _loginButton.setEnabled(true);
+            }
         }
     };
 
@@ -96,17 +102,18 @@ public class LoginActivity extends Activity {
 
     public void login() {
         Log.d(TAG, "Login");
-
-        final ProgressDialog progressDialog = new ProgressDialog(LoginActivity.this,
-                R.style.AppTheme_Dark_Dialog);
-        progressDialog.setIndeterminate(true);
-        progressDialog.setMessage("Authenticating...");
-        progressDialog.show();
-
         if (!validate()) {
             onLoginFailed();
             return;
         }
+        final ProgressDialog progressDialog = new ProgressDialog(LoginActivity.this,
+                R.style.AppTheme_Dark_Dialog);
+        progressDialog.setIndeterminate(true);
+        progressDialog.setMessage("Authenticating...");
+        progressDialog.setCanceledOnTouchOutside(false);
+        progressDialog.show();
+
+
 
         _loginButton.setEnabled(false);
 
@@ -127,21 +134,23 @@ public class LoginActivity extends Activity {
                 switch(LOGIN_STATUS){
                     case 0:
                         Log.d(TAG,"Server error.... Try again later!!");
-                        message = mHandler.obtainMessage();
+                        message = mHandler.obtainMessage(1,"Server error.... Try again later!!");
                         message.sendToTarget();
                         break;
                     case 1:
-                        Log.d(TAG,"Invalid Username!");
-                        message = mHandler.obtainMessage();
+                        Log.d(TAG,"Invalid email!");
+                        message = mHandler.obtainMessage(2,"Invalid email!");
                         message.sendToTarget();
                         break;
                     case 2:
                         Log.d(TAG,"Invalid Password!");
-                        message = mHandler.obtainMessage();
+                        message = mHandler.obtainMessage(3,"Invalid Password!");
                         message.sendToTarget();
                         break;
                     case 3:
-                        onLoginSuccess();
+                        Log.d(TAG,"Login successful!");
+                        message = mHandler.obtainMessage(4,"Login successful!");
+                        message.sendToTarget();
                         break;
                     default:
                 }
@@ -166,9 +175,10 @@ public class LoginActivity extends Activity {
             SSLContext context = SSLContext.getInstance("TLS");
             context.init(null, tmf.getTrustManagers(), null);
 
-            URL url = new URL("https://"+IP_ADRESS+"/api/event/?username="+email+"&password="+password);
+            URL url = new URL("https://"+IP_ADRESS+"/api/event/?email="+email+"&password="+password);
             HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
             urlConnection.setSSLSocketFactory(context.getSocketFactory());
+            urlConnection.setConnectTimeout(15000);
             InputStream in = urlConnection.getInputStream();
             BufferedReader reader = new BufferedReader( new InputStreamReader(in )  );
             String line = null;
@@ -176,11 +186,12 @@ public class LoginActivity extends Activity {
             while( ( line = reader.readLine() ) != null )  {
                 sb.append(line);
             }
-            Log.d(TAG,"ESTOU AUI1");
+
             String answer =sb.toString();
             Log.d(TAG,answer);
+
             switch(answer){
-                case "Not Found!":
+                case "Invalid email!":
                     Log.d(TAG,"NOTFOUND-1");
                     res =1;
                     break;
@@ -188,12 +199,12 @@ public class LoginActivity extends Activity {
                     Log.d(TAG,"Invalid-1");
                     res =2;
                     break;
-                case "GET request successful!":
+                case "Login successful!":
                     Log.d(TAG,"SUCCESS-1");
+                    res =3;
                     break;
                 default:
             }
-            Log.d(TAG,"ESTOU AUI2");
         } catch (Exception e) {
             e.printStackTrace();
         }

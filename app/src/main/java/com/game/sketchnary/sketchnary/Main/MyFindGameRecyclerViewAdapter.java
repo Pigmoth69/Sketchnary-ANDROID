@@ -51,6 +51,8 @@ public class MyFindGameRecyclerViewAdapter extends RecyclerView.Adapter<MyFindGa
                     mListener.onListFragmentInteraction(holder.mItem);
                     String s = new String(holder.mItem.toString());
                     Log.w("myApp", s);
+                    mValues.add(new DummyItem("69","cenas","2"));
+
                 }
             }
         });
@@ -75,6 +77,7 @@ public class MyFindGameRecyclerViewAdapter extends RecyclerView.Adapter<MyFindGa
             mCategoryView = (TextView) view.findViewById(R.id.roomCategory);
             mNumberPlayersView = (TextView) view.findViewById(R.id.currentPlayers);
         }
+
 
         @Override
         public String toString() {
