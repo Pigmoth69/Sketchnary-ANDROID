@@ -34,6 +34,68 @@
         </android.support.design.widget.TextInputLayout>
 
         <!--  Email Label -->
+
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/view" />
+
+        <!-- Name Label -->
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp">
+            <EditText android:id="@+id/input_username"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textCapWords"
+                android:hint="Username"
+                android:textColor="@android:color/black" />
+        </android.support.design.widget.TextInputLayout>
+
+        <!-- Age Label -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Birthday"
+            android:id="@+id/textView3" />
+
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="15dp">
+            <TextView android:id="@+id/showMyDate"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"/>
+            <Button android:id="@+id/myDatePickerButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Choose Date"/>
+        </android.support.design.widget.TextInputLayout>
+
+        <!-- Country Label -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Country"
+            android:id="@+id/textView2" />
+
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp">
+            <Spinner
+                android:id="@+id/countries_spinner"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:popupBackground="@color/white"/>
+        </android.support.design.widget.TextInputLayout>
+
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -58,6 +120,20 @@
                 android:layout_height="wrap_content"
                 android:inputType="textPassword"
                 android:hint="Password"
+                android:textColor="@android:color/black" />
+        </android.support.design.widget.TextInputLayout>
+
+        <!-- ConfirmPassword Label -->
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp">
+            <EditText android:id="@+id/input_confirmpassword"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textPassword"
+                android:hint="Confirm Password"
                 android:textColor="@android:color/black" />
         </android.support.design.widget.TextInputLayout>
 

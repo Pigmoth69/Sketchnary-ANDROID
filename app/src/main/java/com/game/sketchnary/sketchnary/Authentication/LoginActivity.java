@@ -34,7 +34,7 @@ public class LoginActivity extends Activity {
     private static final String TAG = "LoginActivity";
     private static final int REQUEST_SIGNUP = 0;
     private static int LOGIN_STATUS = 0;
-    private static String IP_ADRESS = "172.30.24.106";//this may change..
+    public static String IP_ADRESS = "172.30.24.106";//this may change..
 
     private Handler mHandler = new Handler(Looper.getMainLooper()) {
         @Override
