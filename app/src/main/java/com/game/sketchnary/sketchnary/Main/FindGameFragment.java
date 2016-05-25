@@ -12,11 +12,9 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.game.sketchnary.sketchnary.R;
-import com.game.sketchnary.sketchnary.Main.dummy.Room;
-import com.game.sketchnary.sketchnary.Main.MainMenuActivity;
+import com.game.sketchnary.sketchnary.Main.Room.Room;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * A fragment representing a list of Items.
@@ -81,7 +79,7 @@ public class FindGameFragment extends Fragment {
 
             ArrayList<Room> gameRooms= new ArrayList<Room>();
             for(int i = 0; i < roomNum; i++){
-                gameRooms.add(new Room(""+i,"cenas",""+i));
+                gameRooms.add(new Room(""+i,"cenas "+i,""+i));
             }
             recyclerView.setAdapter(new MyFindGameRecyclerViewAdapter(gameRooms, mListener));
         }

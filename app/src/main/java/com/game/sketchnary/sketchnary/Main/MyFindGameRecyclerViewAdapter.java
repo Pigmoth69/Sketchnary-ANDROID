@@ -1,18 +1,16 @@
 package com.game.sketchnary.sketchnary.Main;
 
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.game.sketchnary.sketchnary.Main.FindGameFragment.OnListFragmentInteractionListener;
-import com.game.sketchnary.sketchnary.Main.dummy.Room;
+import com.game.sketchnary.sketchnary.Main.Room.Room;
 import com.game.sketchnary.sketchnary.R;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * {@link RecyclerView.Adapter} that can display a {@link Room} and makes a call to the
@@ -50,10 +48,6 @@ public class MyFindGameRecyclerViewAdapter extends RecyclerView.Adapter<MyFindGa
                     // Notify the active callbacks interface (the activity, if the
                     // fragment is attached to one) that an item has been selected.
                     mListener.onListFragmentInteraction(holder.mItem);
-                    String s = new String(holder.mItem.toString());
-                    Log.w("myApp", s);
-                    mValues.add(new Room("69","cenas","2"));
-
                 }
             }
         });

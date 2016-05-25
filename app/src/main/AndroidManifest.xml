@@ -26,6 +26,14 @@
         <activity
             android:name=".Authentication.SignupActivity"
             android:theme="@style/AppTheme.Dark" />
+        <activity
+            android:name=".Main.Room.RoomData"
+            android:label="@string/title_activity_room_data"
+            android:theme="@style/AppTheme.Dark" />
+        <activity
+            android:name=".Main.Room.Play"
+            android:label="@string/title_activity_play"
+            android:theme="@style/AppTheme.Dark"></activity>
     </application>
 
 </manifest>

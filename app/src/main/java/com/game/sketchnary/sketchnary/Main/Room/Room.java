@@ -1,4 +1,4 @@
-package com.game.sketchnary.sketchnary.Main.dummy;
+package com.game.sketchnary.sketchnary.Main.Room;
 
 /**
  * Created by danny on 23/05/2016.

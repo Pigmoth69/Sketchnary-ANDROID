@@ -11,13 +11,12 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
-import com.game.sketchnary.sketchnary.Authentication.LoginActivity;
-import com.game.sketchnary.sketchnary.Main.dummy.Room;
+import com.game.sketchnary.sketchnary.Main.Room.Play;
+import com.game.sketchnary.sketchnary.Main.Room.Room;
+import com.game.sketchnary.sketchnary.Main.Room.RoomData;
 import com.game.sketchnary.sketchnary.R;
 
 public class MainMenuActivity extends AppCompatActivity
@@ -110,6 +109,18 @@ implements NavigationView.OnNavigationItemSelectedListener,FindGameFragment.OnLi
 
     @Override
     public void onListFragmentInteraction(Room item) {
+       //tenho de iniciar uma nova atividade com os dados certos. Tenho de pedir o número de
+        //jogadores presentes na sala e os dados deles.
+
+        //MUDAR ISTO
+        Intent intent = new Intent(this, Play.class);
+        startActivity(intent);
+        //ISTO ESTÀ BEM
+       /* Intent intent = new Intent(this, RoomData.class);
+        intent.putExtra("RoomNumber",item.roomNumber.toString());
+        intent.putExtra("RoomCategory",item.roomCategory.toString());
+        intent.putExtra("CurrentPlayers",item.currentPlayers.toString() );
+        startActivity(intent);*/
 
     }
 }
