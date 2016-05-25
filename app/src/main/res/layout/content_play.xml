@@ -11,6 +11,7 @@
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="com.game.sketchnary.sketchnary.Main.Room.Play"
     tools:showIn="@layout/activity_play"
-    android:id="@+id/relLayoutID">
+    android:id="@+id/relLayoutID"
+    android:background="@color/white">
 
 </RelativeLayout>
