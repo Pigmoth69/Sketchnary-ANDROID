@@ -9,7 +9,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.RelativeLayout;
+import android.widget.Spinner;
+import android.widget.TextView;
 
 import com.game.sketchnary.sketchnary.Main.Room.Draw.DrawingView;
 import com.game.sketchnary.sketchnary.R;
