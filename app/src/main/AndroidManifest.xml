@@ -33,6 +33,7 @@
         <activity
             android:name=".Main.Room.Play"
             android:label="@string/title_activity_play"
+            android:screenOrientation="landscape"
             android:theme="@style/AppTheme.Dark"></activity>
     </application>
 

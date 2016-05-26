@@ -9,9 +9,11 @@ import android.graphics.Path;
 import android.view.MotionEvent;
 import android.view.View;
 
-import com.game.sketchnary.sketchnary.R;
+/**
+ * Created by danny on 26/05/2016.
+ */
 
-public class DrawingView extends View {
+public class SpectatingView extends View {
 
     public int width;
     public  int height;
@@ -25,7 +27,7 @@ public class DrawingView extends View {
     private Paint mPaint;
     private int count=0;
 
-    public DrawingView(Context c,Paint mPaint) {
+    public SpectatingView(Context c,Paint mPaint) {
         super(c);
         context=c;
         this.mPaint=mPaint;
@@ -38,7 +40,6 @@ public class DrawingView extends View {
         circlePaint.setStyle(Paint.Style.STROKE);
         circlePaint.setStrokeJoin(Paint.Join.MITER);
         circlePaint.setStrokeWidth(4f);
-
     }
 
     @Override
@@ -116,7 +117,7 @@ public class DrawingView extends View {
 
     //esta função tem de automaticamente fazer o resize dos pontos que recebe para o ecrã do telemovel que recebe
     public void drawPoint(int x,int y){
-        /*System.out.println("WIDTH: "+mBitmap.getWidth());
-        System.out.println("HEIGTH: "+mBitmap.getHeight());*/
+        System.out.println("WIDTH: "+this.width);
+        System.out.println("HEIGTH: "+this.height);
     }
 }

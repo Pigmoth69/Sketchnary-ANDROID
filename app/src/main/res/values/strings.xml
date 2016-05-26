@@ -10,4 +10,6 @@
     <string name="action_refresh">Refresh</string>
     <string name="title_activity_room_data">RoomData</string>
     <string name="title_activity_play">Play</string>
+    <string name="guess_the_word">What is it?</string>
+    <string name="exit_game">Exit?</string>
 </resources>
