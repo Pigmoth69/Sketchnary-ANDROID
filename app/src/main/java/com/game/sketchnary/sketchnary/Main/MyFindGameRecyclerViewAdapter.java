@@ -1,6 +1,4 @@
 package com.game.sketchnary.sketchnary.Main;
-
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -45,6 +43,7 @@ public class MyFindGameRecyclerViewAdapter extends RecyclerView.Adapter<MyFindGa
             @Override
             public void onClick(View v) {
                 if (null != mListener) {
+                    System.out.println("LISTENER!!!");
                     // Notify the active callbacks interface (the activity, if the
                     // fragment is attached to one) that an item has been selected.
                     mListener.onListFragmentInteraction(holder.mItem);

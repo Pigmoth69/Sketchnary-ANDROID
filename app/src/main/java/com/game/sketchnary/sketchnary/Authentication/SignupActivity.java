@@ -267,20 +267,15 @@ public class SignupActivity extends Activity {
             Log.d(TAG,answer);
 
             //ESTOU AQUI, FALTA TRATAR DAS MENSAGENS E RECEBER O JSON/FAZER O PUT
-            switch(answer){
-                case "Invalid email!":
-                    Log.d(TAG,"NOTFOUND-1");
-                    res =1;
-                    break;
-                case "Invalid password!":
-                    Log.d(TAG,"Invalid-1");
-                    res =2;
-                    break;
-                case "Login successful!":
-                    Log.d(TAG,"SUCCESS-1");
-                    res =3;
-                    break;
-                default:
+            if(answer.equals("Invalid email!")){
+                Log.d(TAG,"NOTFOUND-1");
+                res =1;
+            }else if(answer.equals("Invalid password!")){
+                Log.d(TAG,"Invalid-1");
+                res =2;
+            }else if(answer.equals("Login successful!")){
+                Log.d(TAG,"SUCCESS-1");
+                res =3;
             }
         } catch (Exception e) {
             e.printStackTrace();

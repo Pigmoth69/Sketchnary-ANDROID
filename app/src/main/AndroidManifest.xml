@@ -16,7 +16,6 @@
             android:theme="@style/AppTheme.Dark">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -31,7 +30,7 @@
             android:label="@string/title_activity_room_data"
             android:theme="@style/AppTheme.Dark" />
         <activity
-            android:name=".Main.Room.Play"
+            android:name=".Main.Room.Game.Play"
             android:label="@string/title_activity_play"
             android:screenOrientation="landscape"
             android:theme="@style/AppTheme.Dark"></activity>

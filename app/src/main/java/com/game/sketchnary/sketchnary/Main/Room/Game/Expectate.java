@@ -1,6 +1,7 @@
-package com.game.sketchnary.sketchnary.Main.Room;
+package com.game.sketchnary.sketchnary.Main.Room.Game;
 
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -23,9 +24,10 @@ import com.game.sketchnary.sketchnary.R;
 
 import java.util.concurrent.TimeUnit;
 
-public class Play extends AppCompatActivity {
+public class Expectate extends AppCompatActivity {
     DrawingView dv ;
     private Paint mPaint= new Paint();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -104,28 +106,63 @@ public class Play extends AppCompatActivity {
     }
 
     private void showGuessDialog() {
+        AlertDialog.Builder builderSingle = new AlertDialog.Builder(this);
+        builderSingle.setIcon(R.drawable.ic_brush_24dp);
+        builderSingle.setTitle("Select the word:-");
 
-    }
-    @Override
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
-        ArrayAdapter<CharSequence> adapter = null;
-        adapter.add("daniel1");
-        adapter.add("daniel2");
-        adapter.add("daniel3");
-        adapter.add("daniel4");
+        final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(
+                this,
+                android.R.layout.select_dialog_singlechoice);
+        //As palabras que se têm de adicionar!
+        arrayAdapter.add("Hardik");
+        arrayAdapter.add("Archit");
+        arrayAdapter.add("Jignesh");
+        arrayAdapter.add("Umang");
+        arrayAdapter.add("Gatti");
 
-       /* AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Pick a Country")
-                .setItems(adapter, new DialogInterface.OnClickListener() {
+        builderSingle.setNegativeButton(
+                "cancel",
+                new DialogInterface.OnClickListener() {
+                    @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        // The 'which' argument contains the index position
-                        // of the selected item
+                        dialog.dismiss();
                     }
                 });
-        return builder.create();*/
-        
-    }
 
+        final Object context = this;
+        builderSingle.setAdapter(
+                arrayAdapter,
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        String strName = arrayAdapter.getItem(which);
+                        AlertDialog.Builder builderInner = new AlertDialog.Builder((Context) context);
+                        builderInner.setMessage(strName);
+                        builderInner.setTitle("Your Selected Item is");
+                        builderInner.setPositiveButton(
+                                "Ok",
+                                new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(
+                                            DialogInterface dialog,
+                                            int which) {
+                                        dialog.dismiss();
+                                    }
+                                });
+                        builderInner.setNegativeButton("CANCEL",
+                                new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(
+                                            DialogInterface dialog,
+                                            int which) {
+                                        dialog.dismiss();
+                                    }
+                                });
+                        builderInner.show();
+                    }
+                });
+        builderSingle.show();
+    }
 
 }
 
