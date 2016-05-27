@@ -9,7 +9,7 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="com.game.sketchnary.sketchnary.Main.Room.RoomData"
+    tools:context=".Main.Room.RoomLobby"
     tools:showIn="@layout/activity_room_data">
 
 </RelativeLayout>

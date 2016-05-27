@@ -42,12 +42,13 @@ public class FindGameFragment extends ListFragment implements OnItemClickListene
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        mCallback.onArticleSelected(position);
+        mCallback.onArticleSelected(MainMenuActivity.rooms.get(position).getRoomName());
+
     }
 
     // Container Activity must implement this interface
     public interface OnHeadlineSelectedListener {
-        public void onArticleSelected(int position);
+        public void onArticleSelected(String roomName);
     }
     @Override
     public void onAttach(Activity activity) {

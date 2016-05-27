@@ -8,7 +8,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -17,11 +16,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
+import android.widget.TextView;
 
-import com.game.sketchnary.sketchnary.Authentication.LoginActivity;
-import com.game.sketchnary.sketchnary.Main.Room.Game.Play;
 import com.game.sketchnary.sketchnary.Main.Room.Room;
+import com.game.sketchnary.sketchnary.Main.Room.RoomLobby;
 import com.game.sketchnary.sketchnary.R;
 
 import org.json.JSONArray;
@@ -42,6 +40,8 @@ import static com.game.sketchnary.sketchnary.Authentication.LoginActivity.IP_ADR
 public class MainMenuActivity extends AppCompatActivity
 implements NavigationView.OnNavigationItemSelectedListener, FindGameFragment.OnHeadlineSelectedListener{
     public static ArrayList<Room> rooms = new ArrayList<Room>();
+
+
     private Handler mHandler = new Handler(Looper.getMainLooper()) {
         @Override
         public void handleMessage(Message message) {
@@ -62,6 +62,8 @@ implements NavigationView.OnNavigationItemSelectedListener, FindGameFragment.OnH
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_menu);
+
+        //setNavHeaderMainMenu();
         //Making login on the game
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -84,9 +86,26 @@ implements NavigationView.OnNavigationItemSelectedListener, FindGameFragment.OnH
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+
         if (savedInstanceState == null){
             loadGameRooms();
         }
+
+    }
+
+    /*Esta função não funciona não sei porquê*/
+    private void setNavHeaderMainMenu() {
+        TextView name = (TextView)findViewById(R.id.nameID);
+        TextView username = (TextView)findViewById(R.id.usernameID);
+        TextView email = (TextView)findViewById(R.id.emailID);
+        TextView birthday = (TextView)findViewById(R.id.birthdayID);
+        TextView points = (TextView)findViewById(R.id.pointsID);
+
+        name.setText("Welcome, "+this.getIntent().getStringExtra("name")+"!");
+        username.setText("Username: "+this.getIntent().getStringExtra("username"));
+        email.setText("Email: "+this.getIntent().getStringExtra("email"));
+        birthday.setText("Birthdate: "+this.getIntent().getStringExtra("birthday"));
+        points.setText("Total points: "+this.getIntent().getStringExtra("points"));
 
     }
 
@@ -201,20 +220,10 @@ implements NavigationView.OnNavigationItemSelectedListener, FindGameFragment.OnH
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
-    public void onArticleSelected(int position) {
-        System.out.println("oi");
-        //tenho de iniciar uma nova atividade com os dados certos. Tenho de pedir o número de
-        //jogadores presentes na sala e os dados deles.
-        //MUDAR ISTO
-        Intent intent = new Intent(this, Play.class);
+    public void onArticleSelected(String roomName){
+        System.out.println("Room name: "+roomName);
+        Intent intent = new Intent(this, RoomLobby.class);
+        intent.putExtra("RoomName",roomName);
         startActivity(intent);
-        //ISTO ESTÀ BEM
-       /* Intent intent = new Intent(this, RoomData.class);
-        intent.putExtra("RoomNumber",item.roomNumber.toString());
-        intent.putExtra("RoomCategory",item.roomCategory.toString());
-        intent.putExtra("CurrentPlayers",item.currentPlayers.toString() );
-        startActivity(intent);*/
-
-
     }
 }

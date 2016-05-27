@@ -18,6 +18,7 @@ import android.widget.Toast;
 import com.game.sketchnary.sketchnary.Main.MainMenuActivity;
 import com.game.sketchnary.sketchnary.R;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -36,6 +37,7 @@ import javax.net.ssl.TrustManagerFactory;
 public class LoginActivity extends Activity {
     private static final String TAG = "LoginActivity";
     private static final int REQUEST_SIGNUP = 0;
+    private JSONObject resData;
     public static String IP_ADRESS = "172.30.24.106";//this may change..
 
     private Handler mHandler = new Handler(Looper.getMainLooper()) {
@@ -105,6 +107,9 @@ public class LoginActivity extends Activity {
 
     public void login() {
         Log.d(TAG, "Login");
+        //tirar isto daqui depois
+        _emailText.setText("jj@gmail.com");
+        _passwordText.setText("idontknow");
         if (!validate()) {
             onLoginFailed();
             return;
@@ -130,8 +135,6 @@ public class LoginActivity extends Activity {
             public void run() {
                 // On complete call either onLoginSuccess or onLoginFailed
                 Log.d(TAG,"VAMOS TESTAR!");
-                Log.d(TAG,"Email: "+email);
-                Log.d(TAG,"Password: "+password);
                 String res = testLogin(email,password);
                 Message message;
                 message = mHandler.obtainMessage(1,res);
@@ -177,6 +180,7 @@ public class LoginActivity extends Activity {
             String status = serverAwnser.getString("status");
             if(status.equals("ok")){
                 res=status;
+                resData = serverAwnser;
             }else if(status.equals("error")){
                 res = serverAwnser.getString("reason");
             }
@@ -197,6 +201,7 @@ public class LoginActivity extends Activity {
                 String pass = data.getStringExtra("password");
                 _emailText.setText(email);
                 _passwordText.setText(pass);
+                login();//para fazer login automaticamente!
             }
         }
     }
@@ -215,6 +220,22 @@ public class LoginActivity extends Activity {
 
     private void startMainActivity() {
         Intent intent = new Intent(getApplicationContext(), MainMenuActivity.class);
+        //username name birthdate country points
+        System.out.println("Data: "+resData);
+        try {
+            System.out.println("Name: "+resData.getString("name"));
+            System.out.println("Username: "+resData.getString("username"));
+            System.out.println("Birthdate: "+resData.getString("birthdate"));
+            System.out.println("country: "+resData.getString("country"));
+            System.out.println("points: "+resData.getString("points"));
+            intent.putExtra("name",resData.getString("name"));
+            intent.putExtra("username",resData.getString("username"));
+            intent.putExtra("birthdate",resData.getString("birthdate"));
+            intent.putExtra("country",resData.getString("country"));
+            intent.putExtra("points",resData.getString("points"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         startActivity(intent);
     }
 
@@ -243,7 +264,7 @@ public class LoginActivity extends Activity {
         } else {
             _passwordText.setError(null);
         }
-        //username name birthdate country points
+
         return valid;
     }
 }
