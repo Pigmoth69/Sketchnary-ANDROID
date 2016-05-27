@@ -12,7 +12,8 @@ public class TCPClient {
 	public TCPClient(String host, int port) throws Exception {
 		this.host = host;
 		this.port = port;
-		
+		System.out.println("HS:"+host);
+		System.out.println("PT: "+port);
 		clientSocket = new Socket(host ,port);
 	}
 	

@@ -9,7 +9,13 @@ import android.graphics.Path;
 import android.view.MotionEvent;
 import android.view.View;
 
+import com.game.sketchnary.sketchnary.Connection.TCPClient;
+import com.game.sketchnary.sketchnary.Main.Room.RoomLobby;
 import com.game.sketchnary.sketchnary.R;
+
+import org.json.JSONObject;
+
+import java.io.IOException;
 
 public class DrawingView extends View {
 
@@ -23,7 +29,6 @@ public class DrawingView extends View {
     private Paint circlePaint;
     private Path circlePath;
     private Paint mPaint;
-    private int count=0;
 
     public DrawingView(Context c,Paint mPaint) {
         super(c);
@@ -38,13 +43,11 @@ public class DrawingView extends View {
         circlePaint.setStyle(Paint.Style.STROKE);
         circlePaint.setStrokeJoin(Paint.Join.MITER);
         circlePaint.setStrokeWidth(4f);
-
     }
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-        System.out.println("SCREEN SIZE: w:"+w+ " h:"+h);
         mBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
         mCanvas = new Canvas(mBitmap);
     }
@@ -94,8 +97,6 @@ public class DrawingView extends View {
     public boolean onTouchEvent(MotionEvent event) {
         float x = event.getX();
         float y = event.getY();
-        System.out.println("Count: "+count);
-        count++;
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 touch_start(x, y);
@@ -109,14 +110,23 @@ public class DrawingView extends View {
                 touch_up();
                 invalidate();
                 break;
+            default:
+                return true;
         }
+        TCPClient client = RoomLobby.getClient();
+        System.out.println(client.getHost());
+        //width height action x y
+         String res = "{\"width\":"+mBitmap.getWidth()+",\"height\":"+mBitmap.getHeight()+",\"action\":"+event.getAction()+",\"x\":"+x+",\"y\":"+y+"}";
+        System.out.println(res);
+        try {
+            client.send(res);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        System.out.println("porta: " + client.getPort());
+        System.out.println("JSONRES: ");
+        System.out.println(res);
         return true;
-    }
-
-
-    //esta função tem de automaticamente fazer o resize dos pontos que recebe para o ecrã do telemovel que recebe
-    public void drawPoint(int x,int y){
-        /*System.out.println("WIDTH: "+mBitmap.getWidth());
-        System.out.println("HEIGTH: "+mBitmap.getHeight());*/
     }
 }

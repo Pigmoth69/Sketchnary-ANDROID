@@ -2,6 +2,7 @@ package com.game.sketchnary.sketchnary.Main.Room;
 
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -14,30 +15,21 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
+import com.game.sketchnary.sketchnary.Connection.TCPClient;
 import com.game.sketchnary.sketchnary.Main.FindGameFragment;
+import com.game.sketchnary.sketchnary.Main.GameData;
+import com.game.sketchnary.sketchnary.Main.Room.Game.Expectate;
+import com.game.sketchnary.sketchnary.Main.Room.Game.Play;
 import com.game.sketchnary.sketchnary.R;
 import com.game.sketchnary.sketchnary.Connection.Https;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.security.KeyManagementException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
 import java.util.ArrayList;
-
-import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManagerFactory;
 
 
 
@@ -45,22 +37,130 @@ public class RoomLobby extends AppCompatActivity {
     private String RoomName;
     private SSLContext context;
     private JSONObject resData;
+    private static final int ENDGAME_STATUS = 0;
+    private static TCPClient client=null;
+
+    public static TCPClient getClient() {
+        return client;
+    }
 
     private Handler mHandler = new Handler(Looper.getMainLooper()) {
         @Override
         public void handleMessage(Message message) {
-            String status = (String)message.obj;
-            if(status.equals("Refresh")){
-                Fragment fragment = new FindGameFragment();
-                // Insert the fragment by replacing any existing fragment
-                FragmentManager fragmentManager = getFragmentManager();
-                fragmentManager.beginTransaction()
-                        .replace(R.id.contentFragment, fragment)
-                        .commit();
+
+            //tratar de dados com Strings!
+            if(message.obj instanceof String){
+                String status = (String)message.obj;
+                Toast.makeText(getBaseContext(), status, Toast.LENGTH_LONG).show();
+            }else if(message.obj instanceof GameData){
+                GameData gamedata = (GameData)message.obj;
+                joinServers(gamedata);
             }
 
         }
     };
+
+    private void joinServers(final GameData gamedata) {
+        final ProgressDialog progressDialog = new ProgressDialog(RoomLobby.this,
+                R.style.AppTheme_Dark_Dialog);
+        progressDialog.setIndeterminate(true);
+        progressDialog.setMessage("Joining game!");
+        progressDialog.setCanceledOnTouchOutside(false);
+        progressDialog.show();
+
+        final GameData threadData = gamedata;
+        new Thread(){
+            public void run(){
+                try {
+                    client = new TCPClient(threadData.getHost(),threadData.getPort());
+                    String status = client.receive();
+                    if(status.equals("start") && gamedata.getWords()==null) {
+                        System.out.println("ESTOU AQUI1");
+                        Intent intent = new Intent(RoomLobby.this, Play.class);
+                        //MANDAR AS PALAVRAS E OS DADOS NECESSÀRIOS PARA A NOVA ATIVIDADE
+                        startActivity(intent);
+                    }else if(status.equals("start") && gamedata.getWords() !=null) {
+                        System.out.println("ESTOU AQUI2");
+                        Intent intent = new Intent(RoomLobby.this, Expectate.class);
+                        //MANDAR AS PALAVRAS E OS DADOS NECESSÀRIOS PARA A NOVA ATIVIDADE
+                        intent.putExtra("nWords",gamedata.getWords().size());
+                        intent.putExtra("roomName",RoomName);
+                        for(int i = 0;i< gamedata.getWords().size();i++){
+                            intent.putExtra("word"+i,gamedata.getWords().get(i));
+                        }
+                        startActivityForResult(intent,ENDGAME_STATUS);
+                    }else{
+                        System.out.println("ESTOU AQUI3");
+                        Message message = mHandler.obtainMessage(1,status);
+                        message.sendToTarget();
+                    }
+                    progressDialog.dismiss();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }.start();
+
+
+    }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        System.out.println("ENTREI NO ONACTIVITYREULT!1");
+        if (requestCode == ENDGAME_STATUS) {
+            System.out.println("ENTREI NO ONACTIVITYREULT!2");
+            if (resultCode == RESULT_OK) {
+                System.out.println("ENTREI NO ONACTIVITYREULT!3");
+                // TODO: Implement successful signup logic here
+                // By default we just finish the Activity and log them in automatically
+                RefreshGameRoom();
+            }
+        }
+    }
+
+    private void RefreshGameRoom() {
+        final ProgressDialog progressDialog = new ProgressDialog(RoomLobby.this,
+                R.style.AppTheme_Dark_Dialog);
+        progressDialog.setIndeterminate(true);
+        progressDialog.setMessage("Waiting for results!");
+        progressDialog.setCanceledOnTouchOutside(false);
+        progressDialog.show();
+
+       /* new Thread() {
+            public void run() {
+                context = Https.httpStart(getAssets(), context);
+                String res = Https.httpJoinServerGET(context, "https://" + IP_ADRESS + "/api/room/?rooms=" + RoomName);
+                System.out.println("res: " + res);
+                try {
+                    JSONObject o = new JSONObject(res);
+                    String role = o.getString("role");
+                    String host = o.getString("host");
+                    int port = o.getInt("port");
+                    GameData gamedata;
+                    if(role.equals("drawer")){
+                        String word = o.getString("word");
+                        gamedata = new GameData(role,host,port,word);
+                    }else{
+                        JSONArray jwords = o.getJSONArray("words");
+                        ArrayList<String> words = new ArrayList<String>();
+                        for(int i = 0; i < jwords.length();i++){
+                            JSONObject w = jwords.getJSONObject(i);
+                            words.add(w.getString(new Integer(i+1).toString()));
+                        }
+                        gamedata= new GameData(role,host,port,words);
+                    }
+                    Message message = mHandler.obtainMessage(1,gamedata);
+                    message.sendToTarget();
+                    progressDialog.dismiss();
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                Intent intent = new Intent(this, Play.class);
+                startActivity(intent);
+            }
+        }.start();*/
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,44 +182,58 @@ public class RoomLobby extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new Thread() {
-                    public void run() {
-                        System.out.println("Carreguei no play!");
-                        context = Https.httpStart(getAssets(), context);
-                        String res = Https.httpJoinServer(context, "https://" + IP_ADRESS + "/api/room/?rooms=" + RoomName);
-                        System.out.println("res: " + res);
-                        try {
-                            JSONObject o = new JSONObject(res);
-                            String role = o.getString("role");
-                            System.out.println("ROLE: "+role);
-                            String hostname = o.getString("host");
-                            System.out.println("HOST: "+hostname);
-                            int port = o.getInt("port");
-                            System.out.println("PORT: "+port);
-                            if(role.equals("drawer")){
-                                String word = o.getString("word");
-                                System.out.println("WORD: "+word);
-                            }else{
-                                JSONArray jwords = o.getJSONArray("words");
-                                ArrayList<String> words = new ArrayList<String>();
-                                for(int i = 0; i < jwords.length();i++){
-                                    JSONObject w = jwords.getJSONObject(i);
-                                    words.add(w.getString(new Integer(i+1).toString()));
-                                }
-                                System.out.println("WRODS: "+words);
-                            }
+                loadServerData();
 
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-
-                /*Intent intent = new Intent(this, Play.class);
-                startActivity(intent);*/
-                    }
-                }.start();
             }
         });
     }
+
+    private void loadServerData() {
+        final ProgressDialog progressDialog = new ProgressDialog(RoomLobby.this,
+                R.style.AppTheme_Dark_Dialog);
+        progressDialog.setIndeterminate(true);
+        progressDialog.setMessage("Getting game!");
+        progressDialog.setCanceledOnTouchOutside(false);
+        progressDialog.show();
+        new Thread() {
+            public void run() {
+                System.out.println("Carreguei no play!");
+                context = Https.httpStart(getAssets(), context);
+                String res = Https.httpJoinServerGET(context, "https://" + IP_ADRESS + "/api/room/?rooms=" + RoomName);
+                System.out.println("res: " + res);
+                try {
+                    JSONObject o = new JSONObject(res);
+                    String role = o.getString("role");
+                    String host = o.getString("host");
+                    int port = o.getInt("port");
+                    GameData gamedata;
+                    if(role.equals("drawer")){
+                        String word = o.getString("word");
+                        gamedata = new GameData(role,host,port,word);
+                    }else{
+                        JSONArray jwords = o.getJSONArray("words");
+                        ArrayList<String> words = new ArrayList<String>();
+                        for(int i = 0; i < jwords.length();i++){
+                            JSONObject w = jwords.getJSONObject(i);
+                            words.add(w.getString(new Integer(i+1).toString()));
+                        }
+                        gamedata= new GameData(role,host,port,words);
+                    }
+                    Message message = mHandler.obtainMessage(1,gamedata);
+                    message.sendToTarget();
+                    progressDialog.dismiss();
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                /*Intent intent = new Intent(this, Play.class);
+                startActivity(intent);*/
+            }
+        }.start();
+
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -130,22 +244,4 @@ public class RoomLobby extends AppCompatActivity {
                 return super.onOptionsItemSelected(item);
         }
     }
-
-    /*private void joinServer() {
-        final ProgressDialog progressDialog = new ProgressDialog(MainMenuActivity.this,
-                R.style.AppTheme_Dark_Dialog);
-        progressDialog.setIndeterminate(true);
-        progressDialog.setMessage("Loading Rooms");
-        progressDialog.setCanceledOnTouchOutside(false);
-        progressDialog.show();
-
-        new Thread(){
-            public void run(){
-                rooms = httpJoinServer();
-                Message message = mHandler.obtainMessage(1,"Refresh");
-                message.sendToTarget();
-                progressDialog.dismiss();
-            }
-        }.start();
-    }*/
 }

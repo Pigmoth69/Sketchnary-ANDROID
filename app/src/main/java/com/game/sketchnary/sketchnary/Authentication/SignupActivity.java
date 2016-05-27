@@ -248,7 +248,7 @@ public class SignupActivity extends Activity {
             connection.setRequestProperty("Accept", "application/json");
             OutputStreamWriter osw = new OutputStreamWriter(connection.getOutputStream());
             osw.write(String.format(
-                    "{\"email\":%s,\"name\":%s,\"username\":%s,\"birthdate\":%s,\"country\":%s,\"password\":%s,}",email,name,username,birthdate,country,password )
+                    "{\"email\":%s,\"name\":%s,\"username\":%s,\"birthdate\":%s,\"country\":%s,\"password\":%s}",email,name,username,birthdate,country,password )
             );
             osw.flush();
             osw.close();

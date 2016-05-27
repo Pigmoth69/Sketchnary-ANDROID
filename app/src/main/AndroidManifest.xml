@@ -34,7 +34,12 @@
             android:theme="@style/AppTheme.Dark" />
         <activity
             android:name=".Main.Room.Game.Play"
-            android:label="@string/title_activity_play"
+            android:label="@string/title_activity_draw"
+            android:screenOrientation="landscape"
+            android:theme="@style/AppTheme.Dark"></activity>
+        <activity
+            android:name=".Main.Room.Game.Expectate"
+            android:label="@string/title_activity_guess"
             android:screenOrientation="landscape"
             android:theme="@style/AppTheme.Dark"></activity>
     </application>

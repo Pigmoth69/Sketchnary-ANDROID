@@ -1,12 +1,21 @@
 package com.game.sketchnary.sketchnary.Main.Room.Game;
 
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.drawable.ShapeDrawable;
+import android.graphics.drawable.shapes.OvalShape;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.os.SystemClock;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -18,20 +27,48 @@ import android.widget.Chronometer;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.game.sketchnary.sketchnary.Connection.Https;
+import com.game.sketchnary.sketchnary.Main.GameData;
 import com.game.sketchnary.sketchnary.Main.Room.Draw.DrawingView;
+import com.game.sketchnary.sketchnary.Main.Room.Draw.SpectatingView;
+import com.game.sketchnary.sketchnary.Main.Room.RoomLobby;
 import com.game.sketchnary.sketchnary.R;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
+import javax.net.ssl.SSLContext;
+
+import static com.game.sketchnary.sketchnary.Authentication.LoginActivity.IP_ADRESS;
+
 public class Expectate extends AppCompatActivity {
-    DrawingView dv ;
+    SpectatingView dv ;
     private Paint mPaint= new Paint();
+    private SSLContext context;
+    private Handler mHandler = new Handler(Looper.getMainLooper()) {
+        @Override
+        public void handleMessage(Message message) {
+
+            //tratar de dados com Strings!
+            if(message.obj instanceof String){
+                String word = (String)message.obj;
+                Toast.makeText(getBaseContext(), word, Toast.LENGTH_LONG).show();
+            }
+
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        dv = new DrawingView(this,mPaint);
+        dv = new SpectatingView(this,mPaint);
         mPaint.setAntiAlias(true);
         mPaint.setDither(true);
         mPaint.setColor(Color.BLACK);
@@ -62,9 +99,46 @@ public class Expectate extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });*/
-        dv.drawPoint(1,1);
+        new Thread(){
+            public void run(){
+                try {
+                    while(true) {
+                        String res = RoomLobby.getClient().receive();
+                        new GetPointToDraw(res).execute();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }.start();
+
     }
-    long timer = 65000;
+
+    private class GetPointToDraw extends AsyncTask<Void, Void, Void> {
+        private String res;
+
+        public GetPointToDraw(String res) {
+            this.res = res;
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            return null;
+        }
+        protected void onPostExecute(Void result) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    dv.drawOnScreen(res);
+                }
+            });
+
+        }
+    }
+
+
+    long timer = 10000;
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -85,6 +159,9 @@ public class Expectate extends AppCompatActivity {
 
             public void onFinish() {
                 counter.setTitle("done!");
+                Intent i = new Intent();
+                setResult(RESULT_OK, i);
+                finish();
             }
         }.start();
 
@@ -99,6 +176,7 @@ public class Expectate extends AppCompatActivity {
                 return true;
             case R.id.guess_word:
                 showGuessDialog();
+
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -114,12 +192,10 @@ public class Expectate extends AppCompatActivity {
                 this,
                 android.R.layout.select_dialog_singlechoice);
         //As palabras que se têm de adicionar!
-        arrayAdapter.add("Hardik");
-        arrayAdapter.add("Archit");
-        arrayAdapter.add("Jignesh");
-        arrayAdapter.add("Umang");
-        arrayAdapter.add("Gatti");
-
+        int n = this.getIntent().getIntExtra("nWords",0);
+        for(int i = 0;i< n;i++){
+            arrayAdapter.add(this.getIntent().getStringExtra("word"+i));
+        }
         builderSingle.setNegativeButton(
                 "cancel",
                 new DialogInterface.OnClickListener() {
@@ -135,8 +211,8 @@ public class Expectate extends AppCompatActivity {
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        String strName = arrayAdapter.getItem(which);
-                        AlertDialog.Builder builderInner = new AlertDialog.Builder((Context) context);
+                        final String strName = arrayAdapter.getItem(which);
+                        final AlertDialog.Builder builderInner = new AlertDialog.Builder((Context) context);
                         builderInner.setMessage(strName);
                         builderInner.setTitle("Your Selected Item is");
                         builderInner.setPositiveButton(
@@ -146,6 +222,7 @@ public class Expectate extends AppCompatActivity {
                                     public void onClick(
                                             DialogInterface dialog,
                                             int which) {
+                                        sendAwnser(strName);
                                         dialog.dismiss();
                                     }
                                 });
@@ -162,6 +239,37 @@ public class Expectate extends AppCompatActivity {
                     }
                 });
         builderSingle.show();
+    }
+
+    private void sendAwnser(final String strName) {
+        final ProgressDialog progressDialog = new ProgressDialog(Expectate.this,
+                R.style.AppTheme_Dark_Dialog);
+        progressDialog.setIndeterminate(true);
+        progressDialog.setMessage("Saving awnser!");
+        progressDialog.setCanceledOnTouchOutside(false);
+        progressDialog.show();
+        new Thread() {
+            public void run() {
+                context = Https.httpStart(getAssets(), context);
+                String s = new String("{\"room\":"+getIntent().getStringExtra("roomName")+",\"word\":"+strName+"}");
+                String res = Https.httpJoinServerPOST(context, "https://" + IP_ADRESS + "/api/game",s);
+
+                try {
+                    JSONObject o = new JSONObject(res);
+                    String status = o.getString("status");
+                    if(status.equals("ok")){
+                        Message message = mHandler.obtainMessage(1,"Word saved!");
+                        message.sendToTarget();
+                    }else{
+                        Message message = mHandler.obtainMessage(1,"Try again! Word not saved");
+                        message.sendToTarget();
+                    }
+                    progressDialog.dismiss();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }.start();
     }
 
 }

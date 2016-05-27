@@ -9,6 +9,13 @@ import android.graphics.Path;
 import android.view.MotionEvent;
 import android.view.View;
 
+import com.game.sketchnary.sketchnary.Main.Room.RoomLobby;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+
 /**
  * Created by danny on 26/05/2016.
  */
@@ -25,7 +32,6 @@ public class SpectatingView extends View {
     private Paint circlePaint;
     private Path circlePath;
     private Paint mPaint;
-    private int count=0;
 
     public SpectatingView(Context c,Paint mPaint) {
         super(c);
@@ -53,17 +59,20 @@ public class SpectatingView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-
+        System.out.println("I WAS CALLED!!");
         canvas.drawBitmap( mBitmap, 0, 0, mBitmapPaint);
         canvas.drawPath( mPath,  mPaint);
         canvas.drawPath( circlePath,  circlePaint);
     }
 
+
+
+
     private float mX, mY;
     private static final float TOUCH_TOLERANCE = 4;
 
     private void touch_start(float x, float y) {
-        mPath.reset();
+        //mPath.reset();
         mPath.moveTo(x, y);
         mX = x;
         mY = y;
@@ -93,30 +102,44 @@ public class SpectatingView extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        float x = event.getX();
-        float y = event.getY();
-        System.out.println("Count: "+count);
-        count++;
-        switch (event.getAction()) {
-            case MotionEvent.ACTION_DOWN:
-                touch_start(x, y);
-                invalidate();
-                break;
-            case MotionEvent.ACTION_MOVE:
-                touch_move(x, y);
-                invalidate();
-                break;
-            case MotionEvent.ACTION_UP:
-                touch_up();
-                invalidate();
-                break;
-        }
         return true;
+    }
+    public void drawOnScreen(String res){
+        if(res == null)
+            return;
+        try {
+            JSONObject object = new JSONObject(res);
+            int srcWidth = object.getInt("width");
+            int srcHeight = object.getInt("height");
+            int srcAction = object.getInt("action");
+            double srcX = object.getDouble("x");
+            double srcY = object.getDouble("y");
+            float x = (float) (mBitmap.getWidth()*srcX/srcWidth);
+            float y = (float) (mBitmap.getHeight()*srcY/srcHeight);
+            switch (srcAction) {
+                case MotionEvent.ACTION_DOWN:
+                    touch_start(x, y);
+                    invalidate();
+                    break;
+                case MotionEvent.ACTION_MOVE:
+                    touch_move(x, y);
+                    invalidate();
+                    break;
+                case MotionEvent.ACTION_UP:
+                    touch_up();
+                    invalidate();
+                    break;
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        circlePath.reset();
     }
 
 
     //esta função tem de automaticamente fazer o resize dos pontos que recebe para o ecrã do telemovel que recebe
     public void drawPoint(int x,int y){
+        System.out.println("ID: "+x);
         System.out.println("WIDTH: "+this.width);
         System.out.println("HEIGTH: "+this.height);
     }

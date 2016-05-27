@@ -7,6 +7,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.net.URL;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
@@ -43,14 +44,14 @@ public class Https {
         });
     }
 
-    public static String httpJoinServer(SSLContext context, String urlS){
+    public static String httpJoinServerGET(SSLContext context, String urlS){
         String res = "Server error...Try again later!";
         try {
             //"https://"+IP_ADRESS+"/api/room/?rooms="+RoomName
             URL url = new URL(urlS);
             HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
             urlConnection.setSSLSocketFactory(context.getSocketFactory());
-            urlConnection.setConnectTimeout(15000);
+            urlConnection.setConnectTimeout(10000);
             InputStream in = urlConnection.getInputStream();
 
             BufferedReader reader = new BufferedReader( new InputStreamReader(in )  );
@@ -65,6 +66,38 @@ public class Https {
             e.printStackTrace();
         }
         return res;
+    }
+
+    public static String httpJoinServerPOST(SSLContext context, String urlS,String res){
+        String ress = "Server error...Try again later!";
+        try {
+            //FAZER O PUT
+            URL url = new URL(urlS);
+            HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
+            connection.setSSLSocketFactory(context.getSocketFactory());
+            connection.setConnectTimeout(15000);
+            connection.setRequestMethod("POST");
+            connection.setDoOutput(true);
+            connection.setRequestProperty("Content-Type", "application/json");
+            connection.setRequestProperty("Accept", "application/json");
+            OutputStreamWriter osw = new OutputStreamWriter(connection.getOutputStream());
+            osw.write(res);
+            osw.flush();
+            osw.close();
+
+            InputStream in = connection.getInputStream();
+            BufferedReader reader = new BufferedReader( new InputStreamReader(in )  );
+            String line = null;
+            StringBuilder sb = new StringBuilder();
+            while( ( line = reader.readLine() ) != null )  {
+                sb.append(line);
+            }
+
+            ress = sb.toString();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return ress;
     }
 
     public static SSLContext httpStart(AssetManager mngr, SSLContext context){

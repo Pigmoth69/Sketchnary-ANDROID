@@ -13,24 +13,27 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewTreeObserver;
 import android.widget.ArrayAdapter;
 import android.widget.Chronometer;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.game.sketchnary.sketchnary.Connection.TCPClient;
 import com.game.sketchnary.sketchnary.Main.Room.Draw.DrawingView;
 import com.game.sketchnary.sketchnary.R;
 
 import java.util.concurrent.TimeUnit;
 
 public class Play extends AppCompatActivity {
-    DrawingView dv ;
+    private DrawingView dv ;
     private Paint mPaint= new Paint();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        dv = new DrawingView(this,mPaint);
+        dv = new DrawingView(this, mPaint);
         mPaint.setAntiAlias(true);
         mPaint.setDither(true);
         mPaint.setColor(Color.BLACK);
@@ -41,16 +44,13 @@ public class Play extends AppCompatActivity {
         setContentView(R.layout.activity_play);
 
 
-
-
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
 
-
-        RelativeLayout item = (RelativeLayout)findViewById(R.id.relLayoutID);
+        final RelativeLayout item = (RelativeLayout) findViewById(R.id.relLayoutID);
         item.addView(dv);
 
         /*FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -61,7 +61,6 @@ public class Play extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });*/
-        dv.drawPoint(1,1);
     }
     long timer = 65000;
     @Override
