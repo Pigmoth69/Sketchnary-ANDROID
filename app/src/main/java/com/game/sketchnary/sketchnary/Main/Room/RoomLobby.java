@@ -19,6 +19,8 @@ import com.game.sketchnary.sketchnary.Main.FindGameFragment;
 import com.game.sketchnary.sketchnary.R;
 import com.game.sketchnary.sketchnary.Connection.Https;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -31,6 +33,7 @@ import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
+import java.util.ArrayList;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
@@ -79,12 +82,41 @@ public class RoomLobby extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                System.out.println("Carreguei no play!");
-                context=Https.httpStart(getAssets() ,context);
-                String res = Https.httpJoinServer(context, "https://"+IP_ADRESS+"/api/room/?rooms="+RoomName);
-                System.out.println("res: " + res);
+                new Thread() {
+                    public void run() {
+                        System.out.println("Carreguei no play!");
+                        context = Https.httpStart(getAssets(), context);
+                        String res = Https.httpJoinServer(context, "https://" + IP_ADRESS + "/api/room/?rooms=" + RoomName);
+                        System.out.println("res: " + res);
+                        try {
+                            JSONObject o = new JSONObject(res);
+                            String role = o.getString("role");
+                            System.out.println("ROLE: "+role);
+                            String hostname = o.getString("host");
+                            System.out.println("HOST: "+hostname);
+                            int port = o.getInt("port");
+                            System.out.println("PORT: "+port);
+                            if(role.equals("drawer")){
+                                String word = o.getString("word");
+                                System.out.println("WORD: "+word);
+                            }else{
+                                JSONArray jwords = o.getJSONArray("words");
+                                ArrayList<String> words = new ArrayList<String>();
+                                for(int i = 0; i < jwords.length();i++){
+                                    JSONObject w = jwords.getJSONObject(i);
+                                    words.add(w.getString(new Integer(i+1).toString()));
+                                }
+                                System.out.println("WRODS: "+words);
+                            }
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
                 /*Intent intent = new Intent(this, Play.class);
                 startActivity(intent);*/
+                    }
+                }.start();
             }
         });
     }

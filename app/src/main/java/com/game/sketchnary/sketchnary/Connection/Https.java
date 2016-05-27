@@ -1,9 +1,5 @@
 package com.game.sketchnary.sketchnary.Connection;
-
-import android.app.Activity;
-import android.content.Context;
 import android.content.res.AssetManager;
-import android.support.v7.app.AppCompatActivity;
 
 import org.json.JSONObject;
 
@@ -23,6 +19,7 @@ import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManagerFactory;
+
 
 import static com.game.sketchnary.sketchnary.Authentication.LoginActivity.IP_ADRESS;
 
@@ -45,6 +42,7 @@ public class Https {
             }
         });
     }
+
     public static String httpJoinServer(SSLContext context, String urlS){
         String res = "Server error...Try again later!";
         try {
@@ -62,17 +60,7 @@ public class Https {
                 sb.append(line);
             }
 
-            JSONObject serverAwnser;
-            System.out.println("String: "+sb.toString());
-            serverAwnser = new JSONObject(sb.toString());
-            String status = serverAwnser.getString("status");
-            if(status.equals("ok")){
-                res=status;
-                //resData = serverAwnser;
-            }else if(status.equals("error")){
-                res = serverAwnser.getString("reason");
-            }
-            System.out.println("REASON: "+res);
+            res = sb.toString();
         } catch (Exception e) {
             e.printStackTrace();
         }
