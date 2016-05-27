@@ -1,21 +1,24 @@
 package com.game.sketchnary.sketchnary.Main.Room;
 
+import java.util.ArrayList;
+
 /**
  * Created by danny on 23/05/2016.
  */
 public class Room {
-    public final String roomNumber;
-    public final String roomCategory;
-    public final String currentPlayers;
+    private String roomName;
+    private ArrayList<String> currentPlayers;
 
-    public Room(String roomNumber, String roomCategory, String currentPlayers) {
-        this.roomNumber = roomNumber;
-        this.roomCategory = roomCategory;
+    public Room(String roomName, ArrayList<String> currentPlayers) {
+        this.roomName=roomName;
         this.currentPlayers = currentPlayers;
     }
 
-    @Override
-    public String toString() {
-        return roomCategory;
+    public String getRoomName() {
+        return roomName;
+    }
+
+    public ArrayList<String> getCurrentPlayers() {
+        return currentPlayers;
     }
 }

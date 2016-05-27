@@ -15,7 +15,10 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.game.sketchnary.sketchnary.Main.MainMenuActivity;
 import com.game.sketchnary.sketchnary.R;
+
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -33,15 +36,15 @@ import javax.net.ssl.TrustManagerFactory;
 public class LoginActivity extends Activity {
     private static final String TAG = "LoginActivity";
     private static final int REQUEST_SIGNUP = 0;
-    private static int LOGIN_STATUS = 0;
     public static String IP_ADRESS = "172.30.24.106";//this may change..
 
     private Handler mHandler = new Handler(Looper.getMainLooper()) {
         @Override
         public void handleMessage(Message message) {
             String status = (String)message.obj;
-            if(status.equals("Login successful!"))
+            if(status.equals("ok")){
                 onLoginSuccess();
+            }
             else {
                 Toast.makeText(getBaseContext(), status, Toast.LENGTH_LONG).show();
                 _loginButton.setEnabled(true);
@@ -129,39 +132,20 @@ public class LoginActivity extends Activity {
                 Log.d(TAG,"VAMOS TESTAR!");
                 Log.d(TAG,"Email: "+email);
                 Log.d(TAG,"Password: "+password);
-                LOGIN_STATUS = testLogin(email,password);
+                String res = testLogin(email,password);
                 Message message;
-                switch(LOGIN_STATUS){
-                    case 0:
-                        Log.d(TAG,"Server error.... Try again later!!");
-                        message = mHandler.obtainMessage(1,"Server error.... Try again later!!");
-                        message.sendToTarget();
-                        break;
-                    case 1:
-                        Log.d(TAG,"Invalid email!");
-                        message = mHandler.obtainMessage(2,"Invalid email!");
-                        message.sendToTarget();
-                        break;
-                    case 2:
-                        Log.d(TAG,"Invalid Password!");
-                        message = mHandler.obtainMessage(3,"Invalid Password!");
-                        message.sendToTarget();
-                        break;
-                    case 3:
-                        Log.d(TAG,"Login successful!");
-                        message = mHandler.obtainMessage(4,"Login successful!");
-                        message.sendToTarget();
-                        break;
-                    default:
-                }
+                message = mHandler.obtainMessage(1,res);
+                message.sendToTarget();
+
                 progressDialog.dismiss();
             }
         }.start();
 
     }
 
-    protected int testLogin(String email,String password) {
-        int res=0;
+
+    protected String testLogin(String email,String password) {
+        String res = "Server error...Try again later!";
         try {
             String keyStoreType = KeyStore.getDefaultType();
             KeyStore keyStore = KeyStore.getInstance(keyStoreType);
@@ -175,7 +159,7 @@ public class LoginActivity extends Activity {
             SSLContext context = SSLContext.getInstance("TLS");
             context.init(null, tmf.getTrustManagers(), null);
 
-            URL url = new URL("https://"+IP_ADRESS+"/api/event/?email="+email+"&password="+password);
+            URL url = new URL("https://"+IP_ADRESS+"/api/user/?email="+email+"&password="+password);
             HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
             urlConnection.setSSLSocketFactory(context.getSocketFactory());
             urlConnection.setConnectTimeout(15000);
@@ -187,19 +171,16 @@ public class LoginActivity extends Activity {
                 sb.append(line);
             }
 
-            String answer =sb.toString();
-            Log.d(TAG,answer);
-            if(answer.equals("Invalid email!")){
-                Log.d(TAG,"NOTFOUND-1");
-                res =1;
-            }else if(answer.equals("Invalid password!")){
-                Log.d(TAG,"Invalid-1");
-                res =2;
-            }else if(answer.equals("Login successful!")){
-                Log.d(TAG,"SUCCESS-1");
-                res =3;
+            JSONObject serverAwnser;
+            System.out.println("String: "+sb.toString());
+            serverAwnser = new JSONObject(sb.toString());
+            String status = serverAwnser.getString("status");
+            if(status.equals("ok")){
+                res=status;
+            }else if(status.equals("error")){
+                res = serverAwnser.getString("reason");
             }
-
+            System.out.println("REASON: "+res);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -210,10 +191,12 @@ public class LoginActivity extends Activity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_SIGNUP) {
             if (resultCode == RESULT_OK) {
-
                 // TODO: Implement successful signup logic here
                 // By default we just finish the Activity and log them in automatically
-                this.finish();
+                String email = data.getStringExtra("email");
+                String pass = data.getStringExtra("password");
+                _emailText.setText(email);
+                _passwordText.setText(pass);
             }
         }
     }
@@ -226,7 +209,13 @@ public class LoginActivity extends Activity {
 
     public void onLoginSuccess() {
         _loginButton.setEnabled(true);
+        startMainActivity();
         finish();
+    }
+
+    private void startMainActivity() {
+        Intent intent = new Intent(getApplicationContext(), MainMenuActivity.class);
+        startActivity(intent);
     }
 
     public void onLoginFailed() {
@@ -254,7 +243,7 @@ public class LoginActivity extends Activity {
         } else {
             _passwordText.setError(null);
         }
-
+        //username name birthdate country points
         return valid;
     }
 }

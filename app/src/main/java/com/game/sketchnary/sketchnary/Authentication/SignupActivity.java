@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -18,13 +19,19 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.game.sketchnary.sketchnary.Main.Room.Room;
 import com.game.sketchnary.sketchnary.R;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.net.URL;
 import java.security.KeyStore;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -47,7 +54,6 @@ public class SignupActivity extends Activity {
     static final int DATE_DIALOG_ID = 0;
 
     private static final String TAG = "SignupActivity";
-    private static int SIGNUP_STATUS = 0;
 
     EditText _nameText;
     EditText _usernameText;
@@ -67,7 +73,6 @@ public class SignupActivity extends Activity {
         {
             public boolean verify(String hostname, SSLSession session)
             {
-                // ip address of the service URL(like.23.28.244.244)
                 if (hostname.equals(IP_ADRESS))
                     return true;
                 else
@@ -79,7 +84,7 @@ public class SignupActivity extends Activity {
         @Override
         public void handleMessage(Message message) {
             String status = (String)message.obj;
-            if(status.equals("Signup successful!"))
+            if(status.equals("ok"))
                 onSignupSuccess();
             else {
                 Toast.makeText(getBaseContext(), status, Toast.LENGTH_LONG).show();
@@ -205,38 +210,20 @@ public class SignupActivity extends Activity {
                 // On complete call either onLoginSuccess or onLoginFailed
                 Log.d(TAG,"VAMOS TESTAR!");
                 //testRegister(String name,String username,int age,String country,String email,String password)
-                SIGNUP_STATUS = testRegister(name,username,mDay,mMonth,mYear,country,email,password);
+                mMonth++;//porque o mês tem de ser superior a 0 caso seja janeiro, ele começa em 0
+                String birthdate = new String(mYear+"-"+mMonth+"-"+mDay);
+                System.out.println("Birthdate: "+birthdate);
+                String res = testRegister(name,username,birthdate,country,email,password);
                 Message message;
-                switch(SIGNUP_STATUS){
-                    case 0:
-                        Log.d(TAG,"Server error.... Try again later!!");
-                        message = mHandler.obtainMessage(1,"Server error.... Try again later!!");
-                        message.sendToTarget();
-                        break;
-                    case 1:
-                        Log.d(TAG,"Email already in use!");
-                        message = mHandler.obtainMessage(2,"Email already in use!");
-                        message.sendToTarget();
-                        break;
-                    case 2:
-                        Log.d(TAG,"Username already in use!");
-                        message = mHandler.obtainMessage(3,"Username already in use!");
-                        message.sendToTarget();
-                        break;
-                    case 3:
-                        Log.d(TAG,"Signup successful!");
-                        message = mHandler.obtainMessage(4,"Signup successful!");
-                        message.sendToTarget();
-                        break;
-                    default:
-                }
+                message = mHandler.obtainMessage(1,res);
+                message.sendToTarget();
                 progressDialog.dismiss();
             }
         }.start();
     }
 
-    protected int testRegister(String name,String username,int mDay,int mMonth,int mYear,String country,String email,String password) {
-        int res=0;
+    protected String testRegister(String name,String username,String birthdate,String country,String email,String password) {
+        String res="Server error...Try again later";
         try {
             String keyStoreType = KeyStore.getDefaultType();
             KeyStore keyStore = KeyStore.getInstance(keyStoreType);
@@ -251,11 +238,22 @@ public class SignupActivity extends Activity {
             context.init(null, tmf.getTrustManagers(), null);
 
             //FAZER O PUT
-            URL url = new URL("https://"+IP_ADRESS+"/api/event/?email="+email+"&password="+password);
-            HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
-            urlConnection.setSSLSocketFactory(context.getSocketFactory());
-            urlConnection.setConnectTimeout(15000);
-            InputStream in = urlConnection.getInputStream();
+            URL url = new URL("https://"+IP_ADRESS+"/api/user/");
+            HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
+            connection.setSSLSocketFactory(context.getSocketFactory());
+            connection.setConnectTimeout(15000);
+            connection.setRequestMethod("PUT");
+            connection.setDoOutput(true);
+            connection.setRequestProperty("Content-Type", "application/json");
+            connection.setRequestProperty("Accept", "application/json");
+            OutputStreamWriter osw = new OutputStreamWriter(connection.getOutputStream());
+            osw.write(String.format(
+                    "{\"email\":%s,\"name\":%s,\"username\":%s,\"birthdate\":%s,\"country\":%s,\"password\":%s,}",email,name,username,birthdate,country,password )
+            );
+            osw.flush();
+            osw.close();
+
+            InputStream in = connection.getInputStream();
             BufferedReader reader = new BufferedReader( new InputStreamReader(in )  );
             String line = null;
             StringBuilder sb = new StringBuilder();
@@ -263,19 +261,13 @@ public class SignupActivity extends Activity {
                 sb.append(line);
             }
 
-            String answer =sb.toString();
-            Log.d(TAG,answer);
-
-            //ESTOU AQUI, FALTA TRATAR DAS MENSAGENS E RECEBER O JSON/FAZER O PUT
-            if(answer.equals("Invalid email!")){
-                Log.d(TAG,"NOTFOUND-1");
-                res =1;
-            }else if(answer.equals("Invalid password!")){
-                Log.d(TAG,"Invalid-1");
-                res =2;
-            }else if(answer.equals("Login successful!")){
-                Log.d(TAG,"SUCCESS-1");
-                res =3;
+            JSONObject serverAwnser;
+            serverAwnser = new JSONObject(sb.toString());
+            String status = serverAwnser.getString("status");
+            if(status.equals("ok")){
+                res=status;
+            }else if(status.equals("error")){
+                res = serverAwnser.getString("reason");
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -286,7 +278,10 @@ public class SignupActivity extends Activity {
 
     public void onSignupSuccess() {
         _signupButton.setEnabled(true);
-        setResult(RESULT_OK, null);
+        Intent i = new Intent();
+        i.putExtra("email",_emailText.getText().toString());
+        i.putExtra("password",_passwordText.getText().toString());
+        setResult(RESULT_OK, i);
         finish();
     }
 
@@ -306,26 +301,24 @@ public class SignupActivity extends Activity {
 
 
         if (name.isEmpty()||username.isEmpty() || name.length() < 3) {
+            System.out.println("Entrei1");
             _nameText.setError("at least 3 characters");
             valid = false;
-        } else {
-            _nameText.setError(null);
         }
 
         if (email.isEmpty() || !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            System.out.println("Entrei2");
             _emailText.setError("enter a valid email address");
             valid = false;
-        } else {
-            _emailText.setError(null);
         }
 
         if (password.isEmpty() ||confirmpassword.isEmpty() || confirmpassword.length() < 4 || password.length() < 4) {
+            System.out.println("Entrei3");
             _passwordText.setError("minimum 4 characters required");
             valid = false;
-        } else {
-            _passwordText.setError(null);
         }
         if(!password.equals(confirmpassword)){
+            System.out.println("Entrei4");
             _confirmpasswordText.setError("Passwords Mismatch");
             valid = false;
         }
@@ -333,14 +326,13 @@ public class SignupActivity extends Activity {
         int year = data.get(Calendar.YEAR);
         int month = data.get(Calendar.MONTH);
         int day = data.get(Calendar.DAY_OF_MONTH);
+        System.out.println("Year: "+year+" Mounth: "+month+" day: "+day);
         Date today = new Date(year,month,day);
         Date birthday = new Date(mYear,mMonth-1,mDay);
 
-        if (today.compareTo(birthday)<-8){
-            _showMyDate.setError("You should be older than 8 years old");
-            valid=false;
-        }
-        else {
+        if (today.compareTo(birthday)<=0){
+            System.out.println("Entrei5");
+            System.out.println("Res: "+today.compareTo(birthday));
             _showMyDate.setError("Invalid date");
             valid = false;
         }
