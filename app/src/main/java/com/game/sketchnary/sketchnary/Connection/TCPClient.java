@@ -1,4 +1,4 @@
-package com.game.sketchnary.sketchnary.tcpConnection;
+package com.game.sketchnary.sketchnary.Connection;
 
 import java.io.*;
 import java.net.*;

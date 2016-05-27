@@ -2,7 +2,6 @@ package com.game.sketchnary.sketchnary.Main.Room;
 
 import android.app.Fragment;
 import android.app.FragmentManager;
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -10,19 +9,15 @@ import android.os.Looper;
 import android.os.Message;
 import android.support.design.widget.FloatingActionButton;
 import static com.game.sketchnary.sketchnary.Authentication.LoginActivity.IP_ADRESS;
-import static com.game.sketchnary.sketchnary.Main.MainMenuActivity.rooms;
 
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
 
 import com.game.sketchnary.sketchnary.Main.FindGameFragment;
-import com.game.sketchnary.sketchnary.Main.MainMenuActivity;
-import com.game.sketchnary.sketchnary.Main.Room.Game.Play;
 import com.game.sketchnary.sketchnary.R;
-import com.game.sketchnary.sketchnary.tcpConnection.TCPClient;
+import com.game.sketchnary.sketchnary.Connection.Https;
 
 import org.json.JSONObject;
 
@@ -40,6 +35,7 @@ import java.security.cert.CertificateException;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManagerFactory;
+
 
 
 public class RoomLobby extends AppCompatActivity {
@@ -84,7 +80,9 @@ public class RoomLobby extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 System.out.println("Carreguei no play!");
-
+                context=Https.httpStart(getAssets() ,context);
+                String res = Https.httpJoinServer(context, "https://"+IP_ADRESS+"/api/room/?rooms="+RoomName);
+                System.out.println("res: " + res);
                 /*Intent intent = new Intent(this, Play.class);
                 startActivity(intent);*/
             }
@@ -118,65 +116,4 @@ public class RoomLobby extends AppCompatActivity {
             }
         }.start();
     }*/
-
-    public String httpJoinServer(String urlS){
-            String res = "Server error...Try again later!";
-            try {
-                //"https://"+IP_ADRESS+"/api/room/?rooms="+RoomName
-                URL url = new URL(urlS);
-                HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
-                urlConnection.setSSLSocketFactory(context.getSocketFactory());
-                urlConnection.setConnectTimeout(15000);
-                InputStream in = urlConnection.getInputStream();
-
-                BufferedReader reader = new BufferedReader( new InputStreamReader(in )  );
-                String line = null;
-                StringBuilder sb = new StringBuilder();
-                while( ( line = reader.readLine() ) != null )  {
-                    sb.append(line);
-                }
-
-                JSONObject serverAwnser;
-                System.out.println("String: "+sb.toString());
-                serverAwnser = new JSONObject(sb.toString());
-                String status = serverAwnser.getString("status");
-                if(status.equals("ok")){
-                    res=status;
-                    resData = serverAwnser;
-                }else if(status.equals("error")){
-                    res = serverAwnser.getString("reason");
-                }
-                System.out.println("REASON: "+res);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return res;
-        }
-
-    public void httpStart(){
-        try{
-            String keyStoreType = KeyStore.getDefaultType();
-            KeyStore keyStore = KeyStore.getInstance(keyStoreType);
-            keyStore.load(getAssets().open("Keys/truststore.bks"), "123456".toCharArray());
-
-            // Create a TrustManager that trusts the CAs in our KeyStore
-            String tmfAlgorithm = TrustManagerFactory.getDefaultAlgorithm();
-            TrustManagerFactory tmf = TrustManagerFactory.getInstance(tmfAlgorithm);
-            tmf.init(keyStore);
-
-            context = SSLContext.getInstance("TLS");
-            context.init(null, tmf.getTrustManagers(), null);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (CertificateException e) {
-            e.printStackTrace();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (KeyStoreException e) {
-            e.printStackTrace();
-        } catch (KeyManagementException e) {
-            e.printStackTrace();
-        }
-
-    }
 }

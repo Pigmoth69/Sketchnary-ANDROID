@@ -1,4 +1,4 @@
-package com.game.sketchnary.sketchnary.tcpConnection;
+package com.game.sketchnary.sketchnary.Connection;
 
 import com.game.sketchnary.sketchnary.utilities.*;
 

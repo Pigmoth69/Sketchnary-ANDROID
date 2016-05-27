@@ -32,7 +32,7 @@ import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManagerFactory;
-import com.facebook.FacebookSdk;
+//import com.facebook.FacebookSdk;
 
 
 public class LoginActivity extends Activity {
