@@ -1,11 +1,12 @@
-package tcpConnection;
+package com.game.sketchnary.sketchnary.tcpConnection;
+
+import com.game.sketchnary.sketchnary.utilities.*;
 
 import java.io.IOException;
 
-import utilities.Constants;
 
 public class Channel {
-	
+
 	private TCPClient client_c1;
 	private TCPClient client_c2;
 	private TCPServer server_c1;
@@ -149,7 +150,7 @@ public class Channel {
 	/**
 	 * Exchange on the channel 1
 	 * 
-	 * @param server
+	 * @param //server
 	 * @param query
 	 * @return received string
 	 */
@@ -173,7 +174,7 @@ public class Channel {
 	/**
 	 * Exchange on the channel 2
 	 * Returns ERROR1 or 2 which corresponds to the error occuring in the first exchange or the second 
-	 * @param server
+	 * @param //server
 	 * @param query
 	 * @return String
 	 */

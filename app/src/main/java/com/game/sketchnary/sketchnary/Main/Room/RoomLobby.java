@@ -10,6 +10,8 @@ import android.os.Looper;
 import android.os.Message;
 import android.support.design.widget.FloatingActionButton;
 import static com.game.sketchnary.sketchnary.Authentication.LoginActivity.IP_ADRESS;
+import static com.game.sketchnary.sketchnary.Main.MainMenuActivity.rooms;
+
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
@@ -17,15 +19,23 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.game.sketchnary.sketchnary.Main.FindGameFragment;
+import com.game.sketchnary.sketchnary.Main.MainMenuActivity;
+import com.game.sketchnary.sketchnary.Main.Room.Game.Play;
 import com.game.sketchnary.sketchnary.R;
+import com.game.sketchnary.sketchnary.tcpConnection.TCPClient;
 
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.security.KeyManagementException;
 import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
@@ -34,17 +44,20 @@ import javax.net.ssl.TrustManagerFactory;
 
 public class RoomLobby extends AppCompatActivity {
     private String RoomName;
+    private SSLContext context;
+    private JSONObject resData;
+
     private Handler mHandler = new Handler(Looper.getMainLooper()) {
         @Override
         public void handleMessage(Message message) {
             String status = (String)message.obj;
             if(status.equals("Refresh")){
-                /*Fragment fragment = new FindGameFragment();
+                Fragment fragment = new FindGameFragment();
                 // Insert the fragment by replacing any existing fragment
                 FragmentManager fragmentManager = getFragmentManager();
                 fragmentManager.beginTransaction()
                         .replace(R.id.contentFragment, fragment)
-                        .commit();*/
+                        .commit();
             }
 
         }
@@ -71,6 +84,7 @@ public class RoomLobby extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 System.out.println("Carreguei no play!");
+
                 /*Intent intent = new Intent(this, Play.class);
                 startActivity(intent);*/
             }
@@ -87,7 +101,7 @@ public class RoomLobby extends AppCompatActivity {
         }
     }
 
-    private void joinServer() {
+    /*private void joinServer() {
         final ProgressDialog progressDialog = new ProgressDialog(MainMenuActivity.this,
                 R.style.AppTheme_Dark_Dialog);
         progressDialog.setIndeterminate(true);
@@ -103,28 +117,18 @@ public class RoomLobby extends AppCompatActivity {
                 progressDialog.dismiss();
             }
         }.start();
-    }
+    }*/
 
-    public void httpJoinServer(){
+    public String httpJoinServer(String urlS){
             String res = "Server error...Try again later!";
             try {
-                String keyStoreType = KeyStore.getDefaultType();
-                KeyStore keyStore = KeyStore.getInstance(keyStoreType);
-                keyStore.load(getAssets().open("Keys/truststore.bks"), "123456".toCharArray());
-
-                // Create a TrustManager that trusts the CAs in our KeyStore
-                String tmfAlgorithm = TrustManagerFactory.getDefaultAlgorithm();
-                TrustManagerFactory tmf = TrustManagerFactory.getInstance(tmfAlgorithm);
-                tmf.init(keyStore);
-
-                SSLContext context = SSLContext.getInstance("TLS");
-                context.init(null, tmf.getTrustManagers(), null);
-
-                URL url = new URL("https://"+IP_ADRESS+"/api/room/?rooms="+RoomName);
+                //"https://"+IP_ADRESS+"/api/room/?rooms="+RoomName
+                URL url = new URL(urlS);
                 HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
                 urlConnection.setSSLSocketFactory(context.getSocketFactory());
                 urlConnection.setConnectTimeout(15000);
                 InputStream in = urlConnection.getInputStream();
+
                 BufferedReader reader = new BufferedReader( new InputStreamReader(in )  );
                 String line = null;
                 StringBuilder sb = new StringBuilder();
@@ -148,5 +152,31 @@ public class RoomLobby extends AppCompatActivity {
             }
             return res;
         }
+
+    public void httpStart(){
+        try{
+            String keyStoreType = KeyStore.getDefaultType();
+            KeyStore keyStore = KeyStore.getInstance(keyStoreType);
+            keyStore.load(getAssets().open("Keys/truststore.bks"), "123456".toCharArray());
+
+            // Create a TrustManager that trusts the CAs in our KeyStore
+            String tmfAlgorithm = TrustManagerFactory.getDefaultAlgorithm();
+            TrustManagerFactory tmf = TrustManagerFactory.getInstance(tmfAlgorithm);
+            tmf.init(keyStore);
+
+            context = SSLContext.getInstance("TLS");
+            context.init(null, tmf.getTrustManagers(), null);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (CertificateException e) {
+            e.printStackTrace();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (KeyStoreException e) {
+            e.printStackTrace();
+        } catch (KeyManagementException e) {
+            e.printStackTrace();
+        }
+
     }
 }

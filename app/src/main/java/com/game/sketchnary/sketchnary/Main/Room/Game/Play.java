@@ -97,7 +97,8 @@ public class Play extends AppCompatActivity {
                 finish();
                 return true;
             case R.id.guess_word:
-                showGuessDialog();
+                //showGuessDialog();
+
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
