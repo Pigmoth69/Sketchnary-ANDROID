@@ -28,10 +28,17 @@
         <activity
             android:name=".Authentication.SignupActivity"
             android:theme="@style/AppTheme.Dark" />
+
         <activity
             android:name=".Main.Room.RoomLobby"
             android:label="@string/title_activity_room_data"
-            android:theme="@style/AppTheme.Dark" />
+            android:theme="@style/AppTheme.Dark">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
         <activity
             android:name=".Main.Room.Game.Play"
             android:label="@string/title_activity_draw"
@@ -42,6 +49,7 @@
             android:label="@string/title_activity_guess"
             android:screenOrientation="landscape"
             android:theme="@style/AppTheme.Dark"></activity>
+
     </application>
 
 </manifest>

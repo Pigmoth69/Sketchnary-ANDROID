@@ -2,6 +2,7 @@ package com.game.sketchnary.sketchnary.Main.Room;
 
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
@@ -16,12 +17,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import com.game.sketchnary.sketchnary.Connection.TCPClient;
 import com.game.sketchnary.sketchnary.Main.FindGameFragment;
 import com.game.sketchnary.sketchnary.Main.GameData;
-import com.game.sketchnary.sketchnary.Main.PlayerRoomListFragment;
 import com.game.sketchnary.sketchnary.Main.Room.Game.Expectate;
 import com.game.sketchnary.sketchnary.Main.Room.Game.Play;
 import com.game.sketchnary.sketchnary.Main.Room.Game.Player;
@@ -38,14 +40,15 @@ import javax.net.ssl.SSLContext;
 
 
 
-public class RoomLobby extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, PlayerRoomListFragment.OnHeadlineSelectedListener{
+public class RoomLobby extends AppCompatActivity{
     private String RoomName;
     private SSLContext context;
     private JSONObject resData;
     private static final int ENDGAME_STATUS = 0;
     private static ArrayList<Player> players;
     private static TCPClient client=null;
+    private String[] mobileArray = {"Daniel1","Daniel2","Daniel3","Daniel4","Daniel5","Daniel6","Daniel7","Daniel8","Daniel9","Daniel10","Daniel11","Daniel12","Daniel13","Daniel14","Daniel15"};
+    private ArrayAdapter adapter;
 
     public static TCPClient getClient() {
         return client;
@@ -70,12 +73,12 @@ public class RoomLobby extends AppCompatActivity
                 ArrayList<Player> c= (ArrayList)message.obj;
                 System.out.println("Players: ");
                 System.out.println(c);
-                Fragment fragment = new PlayerRoomListFragment();
+                /*Fragment fragment = new PlayerRoomListFragment();
                 // Insert the fragment by replacing any existing fragment
                 FragmentManager fragmentManager = getFragmentManager();
                 fragmentManager.beginTransaction()
                         .replace(R.id.contentFragment, fragment)
-                        .commit();
+                        .commit();*/
             }
         }
     };
@@ -202,6 +205,10 @@ public class RoomLobby extends AppCompatActivity
 
             }
         });
+
+        ListView listView = (ListView) findViewById(R.id.listView);
+        adapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1, mobileArray);
+        listView.setAdapter(adapter);
     }
 
     private void loadServerData() {
@@ -254,7 +261,11 @@ public class RoomLobby extends AppCompatActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                leaveRoom();
+                System.out.println("ENTREIAAA1");
+                mobileArray[1]="MERDA";
+                adapter.notifyDataSetChanged();
+                System.out.println("ENTREIAAA2");
+                //leaveRoom();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -294,16 +305,5 @@ public class RoomLobby extends AppCompatActivity
                 }
             }
         }.start();
-    }
-
-    @Override
-    public void onArticleSelected(String roomName) {
-        //change?
-        return;
-    }
-
-    @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
-        return false;
     }
 }
