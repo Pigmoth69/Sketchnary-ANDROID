@@ -11,6 +11,7 @@ import android.os.Message;
 import android.support.design.widget.FloatingActionButton;
 import static com.game.sketchnary.sketchnary.Authentication.LoginActivity.IP_ADRESS;
 
+import android.support.design.widget.NavigationView;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
@@ -20,6 +21,7 @@ import android.widget.Toast;
 import com.game.sketchnary.sketchnary.Connection.TCPClient;
 import com.game.sketchnary.sketchnary.Main.FindGameFragment;
 import com.game.sketchnary.sketchnary.Main.GameData;
+import com.game.sketchnary.sketchnary.Main.PlayerRoomListFragment;
 import com.game.sketchnary.sketchnary.Main.Room.Game.Expectate;
 import com.game.sketchnary.sketchnary.Main.Room.Game.Play;
 import com.game.sketchnary.sketchnary.R;
@@ -33,11 +35,13 @@ import javax.net.ssl.SSLContext;
 
 
 
-public class RoomLobby extends AppCompatActivity {
+public class RoomLobby extends AppCompatActivity
+        implements NavigationView.OnNavigationItemSelectedListener, PlayerRoomListFragment.OnHeadlineSelectedListener{
     private String RoomName;
     private SSLContext context;
     private JSONObject resData;
     private static final int ENDGAME_STATUS = 0;
+    private static players;
     private static TCPClient client=null;
 
     public static TCPClient getClient() {
@@ -51,7 +55,11 @@ public class RoomLobby extends AppCompatActivity {
             //tratar de dados com Strings!
             if(message.obj instanceof String){
                 String status = (String)message.obj;
-                Toast.makeText(getBaseContext(), status, Toast.LENGTH_LONG).show();
+                if(status.equals("ok")){
+                    finish();
+                }else{
+                    Toast.makeText(getBaseContext(), status, Toast.LENGTH_LONG).show();
+                }
             }else if(message.obj instanceof GameData){
                 GameData gamedata = (GameData)message.obj;
                 joinServers(gamedata);
@@ -125,10 +133,10 @@ public class RoomLobby extends AppCompatActivity {
         progressDialog.setCanceledOnTouchOutside(false);
         progressDialog.show();
 
-       /* new Thread() {
+        new Thread() {
             public void run() {
                 context = Https.httpStart(getAssets(), context);
-                String res = Https.httpJoinServerGET(context, "https://" + IP_ADRESS + "/api/room/?rooms=" + RoomName);
+                String res = Https.httpJoinServerGET(context, "https://" + IP_ADRESS + "/api/game/?room=" + RoomName);
                 System.out.println("res: " + res);
                 try {
                     JSONObject o = new JSONObject(res);
@@ -159,7 +167,7 @@ public class RoomLobby extends AppCompatActivity {
                 Intent intent = new Intent(this, Play.class);
                 startActivity(intent);
             }
-        }.start();*/
+        }.start();
     }
 
     @Override
@@ -238,10 +246,56 @@ public class RoomLobby extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                finish();
+                leaveRoom();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+    private void leaveRoom(){
+        final ProgressDialog progressDialog = new ProgressDialog(RoomLobby.this,
+                R.style.AppTheme_Dark_Dialog);
+        progressDialog.setIndeterminate(true);
+        progressDialog.setMessage("Exiting room!");
+        progressDialog.setCanceledOnTouchOutside(false);
+        progressDialog.show();
+
+        new Thread() {
+            public void run() {
+                context = Https.httpStart(getAssets(), context);
+                String res = Https.httpJoinServerGET(context, "https://" + IP_ADRESS + "/api/room/?exit=" + RoomName);
+                System.out.println("res: " + res);
+                try {
+                    JSONObject o = new JSONObject(res);
+                    String status = o.getString("status");
+
+                    if(status.equals("ok")){
+                        Message message = mHandler.obtainMessage(1,"ok");
+                        message.sendToTarget();
+                    }else{
+                        Message message = mHandler.obtainMessage(1,"Error leaving room!");
+                        message.sendToTarget();
+                    }
+
+                    progressDialog.dismiss();
+
+                } catch (JSONException e) {
+                    //e.printStackTrace();
+                    Message message = mHandler.obtainMessage(1,"Cannot connect room!");
+                    message.sendToTarget();
+                }
+            }
+        }.start();
+    }
+
+    @Override
+    public void onArticleSelected(String roomName) {
+        //change?
+        return;
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(MenuItem item) {
+        return false;
     }
 }

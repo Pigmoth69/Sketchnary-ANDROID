@@ -107,7 +107,7 @@ public class Expectate extends AppCompatActivity {
                         new GetPointToDraw(res).execute();
                     }
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    //e.printStackTrace();
                 }
 
             }

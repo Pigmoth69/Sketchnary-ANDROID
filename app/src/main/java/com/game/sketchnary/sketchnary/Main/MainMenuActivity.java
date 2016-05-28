@@ -17,12 +17,15 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.game.sketchnary.sketchnary.Connection.Https;
 import com.game.sketchnary.sketchnary.Main.Room.Room;
 import com.game.sketchnary.sketchnary.Main.Room.RoomLobby;
 import com.game.sketchnary.sketchnary.R;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -40,21 +43,31 @@ import static com.game.sketchnary.sketchnary.Authentication.LoginActivity.IP_ADR
 public class MainMenuActivity extends AppCompatActivity
 implements NavigationView.OnNavigationItemSelectedListener, FindGameFragment.OnHeadlineSelectedListener{
     public static ArrayList<Room> rooms = new ArrayList<Room>();
+    private SSLContext context;
 
 
     private Handler mHandler = new Handler(Looper.getMainLooper()) {
         @Override
         public void handleMessage(Message message) {
-            String status = (String)message.obj;
-            if(status.equals("Refresh")){
-                Fragment fragment = new FindGameFragment();
-                // Insert the fragment by replacing any existing fragment
-                FragmentManager fragmentManager = getFragmentManager();
-                fragmentManager.beginTransaction()
-                        .replace(R.id.contentFragment, fragment)
-                        .commit();
-            }
 
+            if(message.obj instanceof String){
+                String status = (String)message.obj;
+                if(status.equals("Refresh")){
+                    Fragment fragment = new FindGameFragment();
+                    // Insert the fragment by replacing any existing fragment
+                    FragmentManager fragmentManager = getFragmentManager();
+                    fragmentManager.beginTransaction()
+                            .replace(R.id.contentFragment, fragment)
+                            .commit();
+                }else{
+                    String awnser = (String)message.obj;
+                    Toast.makeText(getBaseContext(), awnser, Toast.LENGTH_LONG).show();
+                }
+            }else if(message.obj instanceof Room){
+                Intent intent = new Intent(MainMenuActivity.this, RoomLobby.class);
+                intent.putExtra("RoomName",((Room)message.obj).getRoomName());
+                startActivity(intent);
+            }
         }
     };
 
@@ -222,8 +235,44 @@ implements NavigationView.OnNavigationItemSelectedListener, FindGameFragment.OnH
     }
     public void onArticleSelected(String roomName){
         System.out.println("Room name: "+roomName);
-        Intent intent = new Intent(this, RoomLobby.class);
-        intent.putExtra("RoomName",roomName);
-        startActivity(intent);
+        //mandar pedido de entrada na sala ao servidor!
+        enterRoom(roomName);
+
+    }
+
+    private void enterRoom(String roomName) {
+        final ProgressDialog progressDialog = new ProgressDialog(MainMenuActivity.this,
+                R.style.AppTheme_Dark_Dialog);
+        progressDialog.setIndeterminate(true);
+        progressDialog.setMessage("Entering room!");
+        progressDialog.setCanceledOnTouchOutside(false);
+        progressDialog.show();
+        final String RoomName = roomName;
+        new Thread() {
+            public void run() {
+                context = Https.httpStart(getAssets(), context);
+                String res = Https.httpJoinServerGET(context, "https://" + IP_ADRESS + "/api/room/?room=" + RoomName);
+                System.out.println("res: " + res);
+                try {
+                    JSONObject o = new JSONObject(res);
+                    String status = o.getString("status");
+
+                    if(status.equals("ok")){
+                        Message message = mHandler.obtainMessage(1,new Room(RoomName,null));
+                        message.sendToTarget();
+                    }else{
+                        Message message = mHandler.obtainMessage(1,"Cannot connect room!");
+                        message.sendToTarget();
+                    }
+
+                    progressDialog.dismiss();
+
+                } catch (JSONException e) {
+                    //e.printStackTrace();
+                    Message message = mHandler.obtainMessage(1,"Cannot connect room!");
+                    message.sendToTarget();
+                }
+            }
+        }.start();
     }
 }
