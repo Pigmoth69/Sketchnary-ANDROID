@@ -58,7 +58,6 @@ public class Expectate extends AppCompatActivity {
         @Override
         public void handleMessage(Message message) {
 
-            //tratar de dados com Strings!
             if(message.obj instanceof String){
                 String word = (String)message.obj;
                 Toast.makeText(getBaseContext(), word, Toast.LENGTH_LONG).show();
@@ -93,14 +92,6 @@ public class Expectate extends AppCompatActivity {
         RelativeLayout item = (RelativeLayout)findViewById(R.id.relLayoutID);
         item.addView(dv);
 
-        /*FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });*/
         new Thread(){
             public void run(){
                 try {
@@ -146,7 +137,6 @@ public class Expectate extends AppCompatActivity {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_play, menu);
 
-        //mudar isto... Jesus, que cancro
         final MenuItem  counter = menu.findItem(R.id.counter);
         new CountDownTimer(timer, 1000) {
 

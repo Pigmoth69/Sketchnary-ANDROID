@@ -43,13 +43,6 @@ public class Play extends AppCompatActivity {
         final RelativeLayout item = (RelativeLayout) findViewById(R.id.relLayoutID);
         item.addView(dv);
 
-       /* FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-            }
-        });*/
     }
     long timer = 60000;
     @Override
@@ -57,7 +50,6 @@ public class Play extends AppCompatActivity {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_guess, menu);
 
-        //mudar isto... Jesus, que cancro
         final MenuItem  counter = menu.findItem(R.id.counter);
         new CountDownTimer(timer, 1000) {
 
@@ -99,65 +91,7 @@ public class Play extends AppCompatActivity {
         }
     }
 
-    /*private void showGuessDialog() {
-        AlertDialog.Builder builderSingle = new AlertDialog.Builder(this);
-        builderSingle.setIcon(R.drawable.ic_brush_24dp);
-        builderSingle.setTitle("Select the word:-");
 
-        final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(
-                this,
-                android.R.layout.select_dialog_singlechoice);
-        //As palabras que se têm de adicionar!
-
-        int size = getIntent().getIntExtra("nWords",0);
-        for(int i = 0; i < size;i++){
-            String w = getIntent().getStringExtra("word"+i);
-            arrayAdapter.add(w);
-        }
-
-        builderSingle.setNegativeButton(
-                "cancel",
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                });
-
-        final Object context = this;
-        builderSingle.setAdapter(
-                arrayAdapter,
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        String strName = arrayAdapter.getItem(which);
-                        AlertDialog.Builder builderInner = new AlertDialog.Builder((Context) context);
-                        builderInner.setMessage(strName);
-                        builderInner.setTitle("Your Selected Item is");
-                        builderInner.setPositiveButton(
-                                "Ok",
-                                new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(
-                                            DialogInterface dialog,
-                                            int which) {
-                                        dialog.dismiss();
-                                    }
-                                });
-                        builderInner.setNegativeButton("CANCEL",
-                                new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(
-                                            DialogInterface dialog,
-                                            int which) {
-                                        dialog.dismiss();
-                                    }
-                                });
-                        builderInner.show();
-                    }
-                });
-        builderSingle.show();
-    }*/
 
 }
 
