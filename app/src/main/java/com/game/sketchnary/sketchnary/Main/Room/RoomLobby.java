@@ -47,7 +47,7 @@ public class RoomLobby extends AppCompatActivity{
     private static final int ENDGAME_STATUS = 0;
     private static ArrayList<Player> players;
     private static TCPClient client=null;
-    private String[] mobileArray = {"Daniel1","Daniel2","Daniel3","Daniel4","Daniel5","Daniel6","Daniel7","Daniel8","Daniel9","Daniel10","Daniel11","Daniel12","Daniel13","Daniel14","Daniel15"};
+    private String[] mobileArray = new String[10];
     private ArrayAdapter adapter;
 
     public static TCPClient getClient() {
@@ -73,6 +73,9 @@ public class RoomLobby extends AppCompatActivity{
                 ArrayList<Player> c= (ArrayList)message.obj;
                 System.out.println("Players: ");
                 System.out.println(c);
+                for(int i = 0; i < c.size();i++)
+                    mobileArray[i]= new String(i+1+"º --> "+c.get(i).getEmail()+" Points: "+c.get(i).getPoints());
+                adapter.notifyDataSetChanged();
                 /*Fragment fragment = new PlayerRoomListFragment();
                 // Insert the fragment by replacing any existing fragment
                 FragmentManager fragmentManager = getFragmentManager();
@@ -261,11 +264,7 @@ public class RoomLobby extends AppCompatActivity{
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                System.out.println("ENTREIAAA1");
-                mobileArray[1]="MERDA";
-                adapter.notifyDataSetChanged();
-                System.out.println("ENTREIAAA2");
-                //leaveRoom();
+                leaveRoom();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
