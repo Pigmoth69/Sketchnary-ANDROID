@@ -109,8 +109,8 @@ public class LoginActivity extends Activity {
     public void login() {
         Log.d(TAG, "Login");
         //tirar isto daqui depois
-        _emailText.setText("jj@gmail.com");
-        _passwordText.setText("idontknow");
+        _emailText.setText("esquecida@gmail.com");
+        _passwordText.setText("eeu:(");
         if (!validate()) {
             onLoginFailed();
             return;

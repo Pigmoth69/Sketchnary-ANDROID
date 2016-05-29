@@ -47,7 +47,7 @@ public class RoomLobby extends AppCompatActivity{
     private static final int ENDGAME_STATUS = 0;
     private static ArrayList<Player> players;
     private static TCPClient client=null;
-    private String[] mobileArray = new String[10];
+    private String[] mobileArray = {"","","","","","","","","",""};
     private ArrayAdapter adapter;
 
     public static TCPClient getClient() {
