@@ -5,6 +5,7 @@ import android.app.FragmentManager;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -34,8 +35,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+
 import javax.net.ssl.SSLContext;
 
 
@@ -49,6 +52,7 @@ public class RoomLobby extends AppCompatActivity{
     private static TCPClient client=null;
     private String[] mobileArray = {"","","","","","","","","",""};
     private ArrayAdapter adapter;
+
 
     public static TCPClient getClient() {
         return client;
@@ -76,12 +80,6 @@ public class RoomLobby extends AppCompatActivity{
                 for(int i = 0; i < c.size();i++)
                     mobileArray[i]= new String(i+1+"º --> "+c.get(i).getEmail()+" Points: "+c.get(i).getPoints());
                 adapter.notifyDataSetChanged();
-                /*Fragment fragment = new PlayerRoomListFragment();
-                // Insert the fragment by replacing any existing fragment
-                FragmentManager fragmentManager = getFragmentManager();
-                fragmentManager.beginTransaction()
-                        .replace(R.id.contentFragment, fragment)
-                        .commit();*/
             }
         }
     };
@@ -103,7 +101,8 @@ public class RoomLobby extends AppCompatActivity{
                     if(status.equals("start") && gamedata.getWords()==null) {
                         System.out.println("ESTOU AQUI1");
                         Intent intent = new Intent(RoomLobby.this, Play.class);
-                        //MANDAR AS PALAVRAS E OS DADOS NECESSÀRIOS PARA A NOVA ATIVIDADE
+                        intent.putExtra("word",gamedata.getWord());
+                        System.out.println("A PALAVRA É: "+gamedata.getWord());
                         startActivity(intent);
                     }else if(status.equals("start") && gamedata.getWords() !=null) {
                         System.out.println("ESTOU AQUI2");
@@ -167,6 +166,19 @@ public class RoomLobby extends AppCompatActivity{
                         int points = j.getJSONObject(i).getInt("points");
                         p.add(new Player(email,points));
                     }
+                    // Sorting
+                    Collections.sort(p, new Comparator<Player>() {
+                        @Override
+                        public int compare(Player p1, Player p2)
+                        {
+                            if(p1.getPoints()< p2.getPoints())
+                                return -1;
+                            else if(p1.getPoints()> p2.getPoints())
+                                return 1;
+                            else
+                                return 0;
+                        }
+                    });
 
                     if(status.equals("ok")){
                         Message message = mHandler.obtainMessage(1,p);
@@ -183,6 +195,7 @@ public class RoomLobby extends AppCompatActivity{
             }
         }.start();
     }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -209,10 +222,28 @@ public class RoomLobby extends AppCompatActivity{
             }
         });
 
+        FloatingActionButton fab2 = (FloatingActionButton) findViewById(R.id.fabe);
+
+        fab2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                RefreshGameRoom();
+            }
+        });
+
         ListView listView = (ListView) findViewById(R.id.listView);
         adapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1, mobileArray);
         listView.setAdapter(adapter);
+
+
+
     }
+
+
+
+
+
+
 
     private void loadServerData() {
         final ProgressDialog progressDialog = new ProgressDialog(RoomLobby.this,

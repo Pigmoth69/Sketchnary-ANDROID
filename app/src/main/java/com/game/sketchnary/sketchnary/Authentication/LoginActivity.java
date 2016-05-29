@@ -26,6 +26,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.security.KeyStore;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
@@ -105,12 +107,27 @@ public class LoginActivity extends Activity {
             }
         });
     }
+    static String sha256(String input) {
 
+        MessageDigest mDigest = null;
+        try {
+            mDigest = MessageDigest.getInstance("SHA256");
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        byte[] result = mDigest.digest(input.getBytes());
+        StringBuffer sb = new StringBuffer();
+        for (int i = 0; i < result.length; i++) {
+            sb.append(Integer.toString((result[i] & 0xff) + 0x100, 16).substring(1));
+        }
+
+        return sb.toString();
+    }
     public void login() {
         Log.d(TAG, "Login");
         //tirar isto daqui depois
-        _emailText.setText("esquecida@gmail.com");
-        _passwordText.setText("eeu:(");
+       /* _emailText.setText("jj@gmail.com");
+        _passwordText.setText("idontknow");*/
         if (!validate()) {
             onLoginFailed();
             return;
@@ -127,7 +144,7 @@ public class LoginActivity extends Activity {
         _loginButton.setEnabled(false);
 
         final String email = _emailText.getText().toString();
-        final String password = _passwordText.getText().toString();
+        final String password = sha256(_passwordText.getText().toString());
 
         // TODO: Implement your own authentication logic here.
 
@@ -259,7 +276,7 @@ public class LoginActivity extends Activity {
             _emailText.setError(null);
         }
 
-        if (password.isEmpty() || password.length() < 4 || password.length() > 10) {
+        if (password.isEmpty()) {
             _passwordText.setError("between 4 and 10 alphanumeric characters");
             valid = false;
         } else {

@@ -13,4 +13,5 @@
     <string name="title_activity_guess">Guess!</string>
     <string name="guess_the_word">What is it?</string>
     <string name="exit_game">Exit?</string>
+    <string name="Clear">Clear</string>
 </resources>

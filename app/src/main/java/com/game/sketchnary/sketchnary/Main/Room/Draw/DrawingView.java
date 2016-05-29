@@ -11,9 +11,6 @@ import android.view.View;
 
 import com.game.sketchnary.sketchnary.Connection.TCPClient;
 import com.game.sketchnary.sketchnary.Main.Room.RoomLobby;
-import com.game.sketchnary.sketchnary.R;
-
-import org.json.JSONObject;
 
 import java.io.IOException;
 

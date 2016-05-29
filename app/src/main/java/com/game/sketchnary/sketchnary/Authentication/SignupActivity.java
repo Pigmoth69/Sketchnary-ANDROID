@@ -31,6 +31,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.URL;
 import java.security.KeyStore;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -200,7 +202,7 @@ public class SignupActivity extends Activity {
         final String name = _nameText.getText().toString();
         final String username = _usernameText.getText().toString();
         final String email = _emailText.getText().toString();
-        final String password = _passwordText.getText().toString();
+        final String password = sha256(_passwordText.getText().toString());
         final String country = spinner.getSelectedItem().toString();
 
         // Signup logic
@@ -288,6 +290,23 @@ public class SignupActivity extends Activity {
     public void onSignupFailed() {
         Toast.makeText(getBaseContext(), "Login failed", Toast.LENGTH_LONG).show();
         _signupButton.setEnabled(true);
+    }
+
+    static String sha256(String input) {
+
+        MessageDigest mDigest = null;
+        try {
+            mDigest = MessageDigest.getInstance("SHA256");
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        byte[] result = mDigest.digest(input.getBytes());
+        StringBuffer sb = new StringBuffer();
+        for (int i = 0; i < result.length; i++) {
+            sb.append(Integer.toString((result[i] & 0xff) + 0x100, 16).substring(1));
+        }
+
+        return sb.toString();
     }
 
     public boolean validate() {

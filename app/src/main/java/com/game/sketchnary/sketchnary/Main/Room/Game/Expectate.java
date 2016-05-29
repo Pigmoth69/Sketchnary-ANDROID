@@ -42,6 +42,8 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.SSLContext;
@@ -138,7 +140,7 @@ public class Expectate extends AppCompatActivity {
     }
 
 
-    long timer = 10000;
+    long timer = 60000;
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -193,9 +195,16 @@ public class Expectate extends AppCompatActivity {
                 android.R.layout.select_dialog_singlechoice);
         //As palabras que se têm de adicionar!
         int n = this.getIntent().getIntExtra("nWords",0);
-        for(int i = 0;i< n;i++){
-            arrayAdapter.add(this.getIntent().getStringExtra("word"+i));
-        }
+        ArrayList<String> w = new ArrayList<String>();
+        for(int i = 0; i < n; i++)
+            w.add(this.getIntent().getStringExtra("word"+i));
+
+        long seed = System.nanoTime();
+        Collections.shuffle(w, new Random(seed));
+
+        for(int i = 0;i< n;i++)
+            arrayAdapter.add(w.get(i));
+
         builderSingle.setNegativeButton(
                 "cancel",
                 new DialogInterface.OnClickListener() {

@@ -1,27 +1,17 @@
 package com.game.sketchnary.sketchnary.Main.Room.Game;
 
-import android.app.Dialog;
-import android.content.Context;
-import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Bundle;
 import android.os.CountDownTimer;
-import android.os.SystemClock;
-import android.support.v7.app.AlertDialog;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewTreeObserver;
-import android.widget.ArrayAdapter;
-import android.widget.Chronometer;
 import android.widget.RelativeLayout;
-import android.widget.Spinner;
-import android.widget.TextView;
-
-import com.game.sketchnary.sketchnary.Connection.TCPClient;
 import com.game.sketchnary.sketchnary.Main.Room.Draw.DrawingView;
 import com.game.sketchnary.sketchnary.R;
 
@@ -53,20 +43,19 @@ public class Play extends AppCompatActivity {
         final RelativeLayout item = (RelativeLayout) findViewById(R.id.relLayoutID);
         item.addView(dv);
 
-        /*FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+       /* FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+
             }
         });*/
     }
-    long timer = 65000;
+    long timer = 60000;
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_play, menu);
+        getMenuInflater().inflate(R.menu.menu_guess, menu);
 
         //mudar isto... Jesus, que cancro
         final MenuItem  counter = menu.findItem(R.id.counter);
@@ -83,9 +72,15 @@ public class Play extends AppCompatActivity {
 
             public void onFinish() {
                 counter.setTitle("done!");
+                Intent i = new Intent();
+                setResult(RESULT_OK, i);
+                finish();
             }
         }.start();
 
+        final MenuItem  wordItem = menu.findItem(R.id.drawingword);
+        String word = getIntent().getStringExtra("word");
+        wordItem.setTitle(word);
         return true;
     }
 
@@ -104,7 +99,7 @@ public class Play extends AppCompatActivity {
         }
     }
 
-    private void showGuessDialog() {
+    /*private void showGuessDialog() {
         AlertDialog.Builder builderSingle = new AlertDialog.Builder(this);
         builderSingle.setIcon(R.drawable.ic_brush_24dp);
         builderSingle.setTitle("Select the word:-");
@@ -113,11 +108,12 @@ public class Play extends AppCompatActivity {
                 this,
                 android.R.layout.select_dialog_singlechoice);
         //As palabras que se têm de adicionar!
-        arrayAdapter.add("Hardik");
-        arrayAdapter.add("Archit");
-        arrayAdapter.add("Jignesh");
-        arrayAdapter.add("Umang");
-        arrayAdapter.add("Gatti");
+
+        int size = getIntent().getIntExtra("nWords",0);
+        for(int i = 0; i < size;i++){
+            String w = getIntent().getStringExtra("word"+i);
+            arrayAdapter.add(w);
+        }
 
         builderSingle.setNegativeButton(
                 "cancel",
@@ -161,7 +157,7 @@ public class Play extends AppCompatActivity {
                     }
                 });
         builderSingle.show();
-    }
+    }*/
 
 }
 
